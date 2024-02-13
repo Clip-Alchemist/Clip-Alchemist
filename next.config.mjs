@@ -1,4 +1,4 @@
-const SUB_DIRECTORY = "/clip-alchemist";
+const SUB_DIRECTORY = "/Clip-Alchemist";
 const isProd = process.env.NODE_ENV == "production";
 
 /** @type {import('next').NextConfig} */
