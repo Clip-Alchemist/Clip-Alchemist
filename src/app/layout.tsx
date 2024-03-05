@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="hidden-scrollbar">
+      <body className="hidden-scrollbar flex flex-col h-screen w-screen">
         <Header />
         {children}
       </body>
