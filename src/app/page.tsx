@@ -54,17 +54,17 @@ export default function Home() {
             <ResizablePanel defaultSize={25}>
               <LeftMenu />
             </ResizablePanel>
-            <ResizableHandle />
+            <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
             <ResizablePanel defaultSize={50}>
               <MoviePreview />
             </ResizablePanel>
-            <ResizableHandle />
+            <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
             <ResizablePanel defaultSize={25}>
               <RightMenu />
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
-        <ResizableHandle />
+        <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
         <ResizablePanel defaultSize={25}>
           <Timeline />
         </ResizablePanel>
