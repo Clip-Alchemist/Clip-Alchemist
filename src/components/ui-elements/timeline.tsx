@@ -1,4 +1,4 @@
-import { File } from "@/types/file";
+import { File } from "@/types/projectFile";
 
 export default function Timeline({ timelineData }: { timelineData?: File }) {
   return (
