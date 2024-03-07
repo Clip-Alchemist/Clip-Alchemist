@@ -1,6 +1,10 @@
-import { File } from "@/types/projectFile";
+import { ProjectFile } from "@/types/projectFile";
 
-export default function Timeline({ timelineData }: { timelineData?: File }) {
+export default function Timeline({
+  timelineData,
+}: {
+  timelineData?: ProjectFile["scenes"];
+}) {
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar">
       <div className="w-max">
