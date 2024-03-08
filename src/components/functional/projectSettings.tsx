@@ -24,7 +24,6 @@ export default function ProjectSettings({
   setProjectFile: React.Dispatch<React.SetStateAction<ProjectFile>>;
 }) {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    console.log("save");
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     setProjectFile({

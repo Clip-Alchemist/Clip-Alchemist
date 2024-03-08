@@ -95,7 +95,6 @@ function TimeLineBar({ zoomSize }: { zoomSize: number }) {
 function TimeLineTime({ zoomSize, fps }: { zoomSize: number; fps: number }) {
   const [x, setX] = useState(0);
   const time = x / zoomSize / fps; // time in seconds
-  console.log(x, time);
   return (
     <div
       className="flex-none w-20"

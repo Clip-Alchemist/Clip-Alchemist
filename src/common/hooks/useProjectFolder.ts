@@ -9,7 +9,6 @@ export function useProjectFolder(onErrorCallback?: (error: Error) => void) {
   const [savedProjectFile, setSavedProjectFile] = useState<
     ProjectFile | undefined
   >();
-  console.log(projectFile);
   async function openProjectFolder() {
     try {
       const projectFolder = await showDirectoryPicker({
