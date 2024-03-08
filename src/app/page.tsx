@@ -1,5 +1,6 @@
 "use client";
 import { useLocalStorage } from "@/common/hooks/localstorag";
+import { useProjectFolder } from "@/common/hooks/useProjectFolder";
 import LeftMenu from "@/components/ui-elements/leftmenu";
 import MoviePreview from "@/components/ui-elements/movie_preview";
 import RightMenu from "@/components/ui-elements/rightmenu";
@@ -16,6 +17,7 @@ export default function Home() {
     "extensionsList",
     []
   );
+  const { projectFile } = useProjectFolder();
   useEffect(() => {
     (async () => {
       const response = await fetch("/extensions/defaultExtensionsList.json");
@@ -66,7 +68,7 @@ export default function Home() {
         </ResizablePanel>
         <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
         <ResizablePanel defaultSize={25}>
-          <Timeline />
+          <Timeline projectFile={projectFile} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </main>

@@ -1,13 +1,14 @@
 "use client";
 import { ProjectFile } from "@/types/projectFile";
 import { useState } from "react";
+import { Button } from "../ui/button";
 
 export default function Timeline({
-  timelineData,
+  projectFile,
 }: {
-  timelineData?: ProjectFile["scenes"];
+  projectFile?: ProjectFile;
 }) {
-  const [zoomSize, setZoomSize] = useState(1); //px per frame
+  const [zoomSize, setZoomSize] = useState(2); //px per frame
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar">
       <div className="w-max relative">
@@ -23,15 +24,34 @@ export default function Timeline({
               </option>
             ))}
           </select>
-          <div className="flex-1 flex">
+          <div
+            className="flex-1 flex relative"
+            style={{
+              width: `${100 * (projectFile?.settings?.fps || 60) * zoomSize}px`,
+            }}
+          >
             {new Array(100).fill(0).map((_, i) => (
-              <div key={i} className="flex-none w-20 text-center">
-                {("00" + Math.floor(i / 3600)).slice(-2)}:
-                {("00" + Math.floor(i / 60)).slice(-2)}:
-                {("00" + (i % 60)).slice(-2)}
-              </div>
+              <TimeLineTime
+                key={i}
+                zoomSize={zoomSize}
+                fps={projectFile?.settings?.fps || 60}
+              />
             ))}
           </div>
+          <nav className="sticky top-0 bg-gray-100 flex   right-0 z-50">
+            <button
+              onClick={() => setZoomSize(Math.max(zoomSize - 0.5, 0.5))}
+              className="w-6 bg-gray-200 hover:bg-gray-300"
+            >
+              -
+            </button>
+            <button
+              onClick={() => setZoomSize(zoomSize + 0.5)}
+              className="w-6 bg-gray-200 hover:bg-gray-300"
+            >
+              +
+            </button>
+          </nav>
         </div>
         <div>
           {new Array(25).fill(0).map((_, i) => (
@@ -70,5 +90,24 @@ function TimeLineBar({ zoomSize }: { zoomSize: number }) {
         window.addEventListener("mouseup", onMouseUp);
       }}
     />
+  );
+}
+function TimeLineTime({ zoomSize, fps }: { zoomSize: number; fps: number }) {
+  const [x, setX] = useState(0);
+  const time = x / zoomSize / fps; // time in seconds
+  console.log(x, time);
+  return (
+    <div
+      className="flex-none w-20"
+      ref={e => {
+        if (e) {
+          setX(e.getBoundingClientRect().left);
+        }
+      }}
+    >
+      {("00" + Math.floor(time / 60)).slice(-2)}:
+      {("00" + Math.floor(time % 60)).slice(-2)}:
+      {("00" + Math.floor((time * 100) % 100)).slice(-2)}
+    </div>
   );
 }
