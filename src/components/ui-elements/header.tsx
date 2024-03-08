@@ -8,30 +8,22 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useToast } from "../ui/use-toast";
-import { ToastAction } from "@radix-ui/react-toast";
 import ProjectSettings from "../functional/projectSettings";
 import { useState } from "react";
 import { ProjectFile } from "@/types/projectFile";
-export default function Header() {
-  const { toast } = useToast();
-  const {
-    openProjectFolder,
-    saveProjectFile,
-    projectFile,
-    setProjectFile,
-    saved,
-  } = useProjectFolder((error: Error) => {
-    toast({
-      title: "Error",
-      description: error.message,
-      action: (
-        <ToastAction onClick={openProjectFolder} altText="Try again">
-          Try again
-        </ToastAction>
-      ),
-    });
-  });
+export default function Header({
+  openProjectFolder,
+  saveProjectFile,
+  projectFile,
+  setProjectFile,
+  saved,
+}: {
+  openProjectFolder: () => void;
+  saveProjectFile: () => void;
+  projectFile?: ProjectFile;
+  setProjectFile: React.Dispatch<React.SetStateAction<ProjectFile | undefined>>;
+  saved: boolean;
+}) {
   const [openProjectSettings, setOpenProjectSettings] = useState(false);
   return (
     <>

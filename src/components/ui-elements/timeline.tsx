@@ -1,7 +1,7 @@
 "use client";
-import { ProjectFile } from "@/types/projectFile";
+import { convertRemToPx } from "@/lib/css/convertRemToPx";
+import { ProjectFile, Script } from "@/types/projectFile";
 import { useState } from "react";
-import { Button } from "../ui/button";
 
 export default function Timeline({
   projectFile,
@@ -9,6 +9,7 @@ export default function Timeline({
   projectFile?: ProjectFile;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
+  const [scene, setScene] = useState(0);
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar">
       <div className="w-max relative">
@@ -16,6 +17,7 @@ export default function Timeline({
           <select
             className="flex-none w-20 sticky top-0 left-0 z-20"
             defaultValue={0}
+            onChange={e => setScene(Number(e.target.value))}
           >
             <option value={0}>root</option>
             {new Array(100).fill(0).map((_, i) => (
@@ -24,12 +26,7 @@ export default function Timeline({
               </option>
             ))}
           </select>
-          <div
-            className="flex-1 flex relative"
-            style={{
-              width: `${100 * (projectFile?.settings?.fps || 60) * zoomSize}px`,
-            }}
-          >
+          <div className="flex-1 flex">
             {new Array(100).fill(0).map((_, i) => (
               <TimeLineTime
                 key={i}
@@ -38,7 +35,7 @@ export default function Timeline({
               />
             ))}
           </div>
-          <nav className="sticky top-0 bg-gray-100 flex   right-0 z-50">
+          <nav className="sticky top-0 bg-gray-100 flex right-0 z-50">
             <button
               onClick={() => setZoomSize(Math.max(zoomSize - 0.5, 0.5))}
               className="w-6 bg-gray-200 hover:bg-gray-300"
@@ -53,18 +50,51 @@ export default function Timeline({
             </button>
           </nav>
         </div>
-        <div>
-          {new Array(25).fill(0).map((_, i) => (
-            <div key={i} className="flex odd:bg-gray-100">
-              <button className="flex-none h-full w-20 text-center py-2  sticky left-0">
-                Layer{i + 1}
-              </button>
-              <div className="flex-1"></div>
-            </div>
-          ))}
-        </div>
+        <TimeLineMain
+          key={scene}
+          scripts={projectFile?.scenes?.[scene]?.scripts || []}
+          zoomSize={zoomSize}
+          fps={projectFile?.settings?.fps || 60}
+        />
         <TimeLineBar zoomSize={zoomSize} />
       </div>
+    </div>
+  );
+}
+function TimeLineMain({
+  scripts,
+  zoomSize,
+  fps,
+}: {
+  scripts: Script[];
+  zoomSize: number;
+  fps: number;
+}) {
+  return (
+    <div>
+      {new Array(25).fill(0).map((_, i) => (
+        <div key={i} className="flex odd:bg-gray-100 opacity-100">
+          <button className="flex-none h-full w-20 text-center py-2  sticky left-0 z-20">
+            Layer{i + 1}
+          </button>
+          <div className="flex-1 relative">
+            {scripts
+              .filter(s => s.layer === i)
+              .map(s => (
+                <div
+                  key={s.id}
+                  className="absolute bg-blue-200 inset-y-0 z-10 cursor-move opacity-50 hover:opacity-100"
+                  style={{
+                    left: s.start * zoomSize * fps,
+                    width: s.length * zoomSize * fps,
+                  }}
+                >
+                  {s.extension}
+                </div>
+              ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -100,7 +130,7 @@ function TimeLineTime({ zoomSize, fps }: { zoomSize: number; fps: number }) {
       className="flex-none w-20"
       ref={e => {
         if (e) {
-          setX(e.getBoundingClientRect().left);
+          setX(e.getBoundingClientRect().left - convertRemToPx(5));
         }
       }}
     >

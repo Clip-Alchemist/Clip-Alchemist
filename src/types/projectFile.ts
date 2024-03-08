@@ -14,17 +14,18 @@ export type ProjectFile = {
     name: string;
   }[];
   scenes?: {
-    scripts: {
-      id: UUID;
-      start: number;
-      length: number;
-      layer: number; //first layer is 0
-      position: {
-        x: number;
-        y: number;
-      };
-      extension: string;
-      extensionInfo: Object;
-    }[];
+    scripts: Script[];
   }[];
+};
+export type Script = {
+  id: UUID;
+  start: number; //in seconds
+  length: number; //in seconds
+  layer: number; //first layer is 0
+  position: {
+    x: number;
+    y: number;
+  };
+  extension: string;
+  extensionInfo: Object;
 };
