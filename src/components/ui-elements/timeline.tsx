@@ -1,13 +1,16 @@
+"use client";
 import { ProjectFile } from "@/types/projectFile";
+import { useState } from "react";
 
 export default function Timeline({
   timelineData,
 }: {
   timelineData?: ProjectFile["scenes"];
 }) {
+  const [zoomSize, setZoomSize] = useState(1); //px per frame
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar">
-      <div className="w-max">
+      <div className="w-max relative">
         <div className="flex h-6 inset-x-0 sticky top-0 bg-gray-50 z-10">
           <select
             className="flex-none w-20 sticky top-0 left-0 z-20"
@@ -40,7 +43,32 @@ export default function Timeline({
             </div>
           ))}
         </div>
+        <TimeLineBar zoomSize={zoomSize} />
       </div>
     </div>
+  );
+}
+function TimeLineBar({ zoomSize }: { zoomSize: number }) {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  return (
+    <div
+      className="absolute top-0 w-0.5 h-full bg-red-500 z-10"
+      style={{ left: `calc(5rem + ${currentFrame / zoomSize}px)` }}
+      onMouseDown={e => {
+        const startX = e.clientX;
+        const startFrame = currentFrame;
+        const onMouseMove = (e: MouseEvent) => {
+          setCurrentFrame(
+            Math.max(0, startFrame + (e.clientX - startX) * zoomSize)
+          );
+        };
+        const onMouseUp = () => {
+          window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("mouseup", onMouseUp);
+        };
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      }}
+    />
   );
 }

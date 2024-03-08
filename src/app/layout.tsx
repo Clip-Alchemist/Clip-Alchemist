@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="hidden-scrollbar flex flex-col h-screen w-screen">
+      <body className="hidden-scrollbar flex flex-col h-screen w-screen select-none">
         <Header />
         {children}
         <Toaster />
