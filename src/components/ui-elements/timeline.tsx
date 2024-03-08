@@ -52,7 +52,7 @@ function TimeLineBar({ zoomSize }: { zoomSize: number }) {
   const [currentFrame, setCurrentFrame] = useState(0);
   return (
     <div
-      className="absolute top-0 w-0.5 h-full bg-red-500 z-10"
+      className="absolute top-0 w-0.5 h-full bg-gray-500 z-10 cursor-ew-resize opacity-50"
       style={{ left: `calc(5rem + ${currentFrame / zoomSize}px)` }}
       onMouseDown={e => {
         const startX = e.clientX;
