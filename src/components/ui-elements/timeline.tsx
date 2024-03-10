@@ -91,8 +91,8 @@ function TimeLineMain({
   return (
     <div>
       {new Array(25).fill(0).map((_, i) => (
-        <div key={i} className="flex odd:bg-gray-100 opacity-100">
-          <button className="flex-none h-full w-20 text-center py-2  sticky left-0 z-20">
+        <div key={i} className="flex odd:bg-gray-100 opacity-100 h-10">
+          <button className="flex-none h-full w-20 text-center sticky left-0 z-20">
             Layer{i + 1}
           </button>
           <div className="flex-1 relative">
@@ -108,6 +108,7 @@ function TimeLineMain({
                   }}
                   onMouseDown={e => {
                     const startX = e.clientX;
+                    const startY = e.clientY;
                     const startFrame = s.start;
                     const onMouseMove = (e: MouseEvent) => {
                       setScripts(
@@ -119,6 +120,13 @@ function TimeLineMain({
                                 0,
                                 startFrame +
                                   (e.clientX - startX) / zoomSize / fps
+                              ),
+                              layer: Math.max(
+                                0,
+                                script.layer +
+                                  Math.round(
+                                    (e.clientY - startY) / convertRemToPx(2.5)
+                                  )
                               ),
                             };
                           }
