@@ -95,7 +95,10 @@ export default function Home() {
           </ResizablePanel>
           <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
           <ResizablePanel defaultSize={25}>
-            <Timeline projectFile={projectFile} />
+            <Timeline
+              projectFile={projectFile}
+              setProjectFile={setProjectFile}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </main>

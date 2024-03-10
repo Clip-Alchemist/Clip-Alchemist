@@ -1,12 +1,16 @@
 "use client";
 import { convertRemToPx } from "@/lib/css/convertRemToPx";
 import { ProjectFile, Script } from "@/types/projectFile";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Timeline({
   projectFile,
+  setProjectFile,
 }: {
   projectFile?: ProjectFile;
+  setProjectFile?: React.Dispatch<
+    React.SetStateAction<ProjectFile | undefined>
+  >;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
   const [scene, setScene] = useState(0);
@@ -53,6 +57,18 @@ export default function Timeline({
         <TimeLineMain
           key={scene}
           scripts={projectFile?.scenes?.[scene]?.scripts || []}
+          setScripts={s => {
+            const currentSceneIndex = scene;
+            setProjectFile?.({
+              ...projectFile,
+              scenes: projectFile?.scenes?.map((scene, i) => {
+                if (i === currentSceneIndex) {
+                  return { ...scene, scripts: s };
+                }
+                return scene;
+              }),
+            });
+          }}
           zoomSize={zoomSize}
           fps={projectFile?.settings?.fps || 60}
         />
@@ -63,10 +79,12 @@ export default function Timeline({
 }
 function TimeLineMain({
   scripts,
+  setScripts,
   zoomSize,
   fps,
 }: {
   scripts: Script[];
+  setScripts: (s: Script[]) => void;
   zoomSize: number;
   fps: number;
 }) {
@@ -79,7 +97,7 @@ function TimeLineMain({
           </button>
           <div className="flex-1 relative">
             {scripts
-              .filter(s => s.layer === i)
+              .filter((s: Script) => s.layer === i)
               .map(s => (
                 <div
                   key={s.id}
@@ -87,6 +105,33 @@ function TimeLineMain({
                   style={{
                     left: s.start * zoomSize * fps,
                     width: s.length * zoomSize * fps,
+                  }}
+                  onMouseDown={e => {
+                    const startX = e.clientX;
+                    const startFrame = s.start;
+                    const onMouseMove = (e: MouseEvent) => {
+                      setScripts(
+                        scripts.map((script: Script) => {
+                          if (script.id === s.id) {
+                            return {
+                              ...script,
+                              start: Math.max(
+                                0,
+                                startFrame +
+                                  (e.clientX - startX) / zoomSize / fps
+                              ),
+                            };
+                          }
+                          return script;
+                        })
+                      );
+                    };
+                    const onMouseUp = () => {
+                      window.removeEventListener("mousemove", onMouseMove);
+                      window.removeEventListener("mouseup", onMouseUp);
+                    };
+                    window.addEventListener("mousemove", onMouseMove);
+                    window.addEventListener("mouseup", onMouseUp);
                   }}
                 >
                   {s.extension}
