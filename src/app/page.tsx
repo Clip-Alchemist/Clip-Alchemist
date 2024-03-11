@@ -1,8 +1,8 @@
 "use client";
 import { useLocalStorage } from "@/common/hooks/localstorag";
 import { useProjectFolder } from "@/common/hooks/useProjectFolder";
+import FileTree from "@/components/ui-elements/filetree";
 import Header from "@/components/ui-elements/header";
-import LeftMenu from "@/components/ui-elements/leftmenu";
 import MoviePreview from "@/components/ui-elements/movie_preview";
 import RightMenu from "@/components/ui-elements/rightmenu";
 import Timeline from "@/components/ui-elements/timeline";
@@ -27,6 +27,7 @@ export default function Home() {
     projectFile,
     setProjectFile,
     saved,
+    projectFolder,
   } = useProjectFolder((error: Error) => {
     toast({
       title: "Error",
@@ -75,26 +76,26 @@ export default function Home() {
       />
       <main className="w-full flex-1">
         <ResizablePanelGroup className="h-full w-full" direction="vertical">
-          <ResizablePanel defaultSize={75}>
+          <ResizablePanel defaultSize={75} minSize={10}>
             <ResizablePanelGroup
               className="flex w-full h-full"
               direction="horizontal"
             >
-              <ResizablePanel defaultSize={25}>
-                <LeftMenu />
+              <ResizablePanel defaultSize={25} minSize={10}>
+                <FileTree projectFolder={projectFolder} />
               </ResizablePanel>
               <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
-              <ResizablePanel defaultSize={50}>
+              <ResizablePanel defaultSize={50} minSize={10}>
                 <MoviePreview />
               </ResizablePanel>
               <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
-              <ResizablePanel defaultSize={25}>
+              <ResizablePanel defaultSize={25} minSize={10}>
                 <RightMenu />
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>
           <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
-          <ResizablePanel defaultSize={25}>
+          <ResizablePanel defaultSize={25} minSize={10}>
             <Timeline
               projectFile={projectFile}
               setProjectFile={setProjectFile}
