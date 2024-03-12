@@ -6,11 +6,15 @@ import React, { useState } from "react";
 export default function Timeline({
   projectFile,
   setProjectFile,
+  activeScript,
+  setActiveScript,
 }: {
   projectFile?: ProjectFile;
   setProjectFile?: React.Dispatch<
     React.SetStateAction<ProjectFile | undefined>
   >;
+  activeScript?: string;
+  setActiveScript?: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
   const [scene, setScene] = useState(0);
@@ -69,6 +73,8 @@ export default function Timeline({
               }),
             });
           }}
+          activeScript={activeScript}
+          setActiveScript={setActiveScript}
           zoomSize={zoomSize}
           fps={projectFile?.settings?.fps || 60}
         />
@@ -80,11 +86,15 @@ export default function Timeline({
 function TimeLineMain({
   scripts,
   setScripts,
+  activeScript,
+  setActiveScript,
   zoomSize,
   fps,
 }: {
   scripts: Script[];
   setScripts: (s: Script[]) => void;
+  activeScript?: string;
+  setActiveScript?: React.Dispatch<React.SetStateAction<string | undefined>>;
   zoomSize: number;
   fps: number;
 }) {
@@ -106,6 +116,7 @@ function TimeLineMain({
                     left: s.start * zoomSize * fps,
                     width: s.length * zoomSize * fps,
                   }}
+                  onClick={() => setActiveScript?.(s.id)}
                   onMouseDown={e => {
                     const startX = e.clientX;
                     const startY = e.clientY;

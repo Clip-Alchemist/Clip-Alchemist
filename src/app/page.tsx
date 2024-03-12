@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/resizable";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [extensionsList, setExtensionsList] = useLocalStorage<Array<string>>(
     "extensionsList",
     []
   );
+  const [activeScript, setActiveScript] = useState<string | undefined>();
   const { toast } = useToast();
   const {
     openProjectFolder,
@@ -90,7 +91,11 @@ export default function Home() {
               </ResizablePanel>
               <ResizableHandle className="bg-gray-100 hover:bg-gray-400" />
               <ResizablePanel defaultSize={25} minSize={10}>
-                <RightMenu />
+                <RightMenu
+                  activeScript={activeScript}
+                  projectFile={projectFile}
+                  setProjectFile={setProjectFile}
+                />
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>
@@ -99,6 +104,8 @@ export default function Home() {
             <Timeline
               projectFile={projectFile}
               setProjectFile={setProjectFile}
+              activeScript={activeScript}
+              setActiveScript={setActiveScript}
             />
           </ResizablePanel>
         </ResizablePanelGroup>
