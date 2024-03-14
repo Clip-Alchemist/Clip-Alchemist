@@ -27,9 +27,9 @@ export default function Header({
   const [openProjectSettings, setOpenProjectSettings] = useState(false);
   return (
     <>
-      <header className="select-none bg-gray-50 flex-none">
-        <div>
-          <p className="w-full text-center my-0">
+      <header className="select-none bg-gray-50 flex-none relative">
+        <div className="w-titleBar h-titleBar [-webkit-app-region:drag;]">
+          <p className="-translate-x-1/2 left-1/2 text-center absolute inset-x-0 w-max">
             {!saved && "*"}
             {projectFile?.name ? projectFile.name : "Clip Alchemist"}
           </p>
