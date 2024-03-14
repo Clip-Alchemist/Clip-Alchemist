@@ -1,5 +1,4 @@
 "use client";
-import { useLocalStorage } from "@/common/hooks/localstorag";
 import { useProjectFolder } from "@/common/hooks/useProjectFolder";
 import FileTree from "@/components/ui-elements/filetree";
 import Header from "@/components/ui-elements/header";
@@ -13,13 +12,10 @@ import {
 } from "@/components/ui/resizable";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useExtensions } from "../common/hooks/useExtensions";
 
 export default function Home() {
-  const [extensionsList, setExtensionsList] = useLocalStorage<Array<string>>(
-    "extensionsList",
-    []
-  );
   const [activeScript, setActiveScript] = useState<string | undefined>();
   const { toast } = useToast();
   const {
@@ -40,32 +36,7 @@ export default function Home() {
       ),
     });
   });
-  useEffect(() => {
-    (async () => {
-      const response = await fetch("/extensions/defaultExtensionsList.json");
-      const data = await response.json();
-      setExtensionsList([...new Set([...extensionsList, ...data])]);
-      if ("serviceWorker" in navigator) {
-        extensionsList.forEach(async extension => {
-          const extensionDetail = await fetch(
-            (extension.startsWith("http")
-              ? extension
-              : `/extensions/${extension}`) + "/extension.json"
-          ).then(res => res.json());
-          await extensionDetail?.scripts?.serviceWorker?.forEach(
-            async (sw: string) => {
-              await navigator.serviceWorker.register(
-                extension.startsWith("http")
-                  ? sw
-                  : `/extensions/${extension}/${sw}`
-              );
-            }
-          );
-        });
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { extensionsList, setExtensionsList } = useExtensions();
   return (
     <>
       <Header
@@ -74,6 +45,8 @@ export default function Home() {
         saveProjectFile={saveProjectFile}
         setProjectFile={setProjectFile}
         saved={saved}
+        extensionsList={extensionsList}
+        setExtensionsList={setExtensionsList}
       />
       <main className="w-full flex-1">
         <ResizablePanelGroup className="h-full w-full" direction="vertical">

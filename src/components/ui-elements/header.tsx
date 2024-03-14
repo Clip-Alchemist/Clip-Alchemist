@@ -1,5 +1,4 @@
 "use client";
-import { useProjectFolder } from "@/common/hooks/useProjectFolder";
 import {
   Menubar,
   MenubarContent,
@@ -11,20 +10,27 @@ import {
 import ProjectSettings from "../functional/projectSettings";
 import { useState } from "react";
 import { ProjectFile } from "@/types/projectFile";
+import ExtensionsSettings from "../functional/extensions";
+import { ExtensionsList } from "@/types/extensionsList";
 export default function Header({
   openProjectFolder,
   saveProjectFile,
   projectFile,
   setProjectFile,
   saved,
+  extensionsList,
+  setExtensionsList,
 }: {
   openProjectFolder: () => void;
   saveProjectFile: () => void;
   projectFile?: ProjectFile;
   setProjectFile: React.Dispatch<React.SetStateAction<ProjectFile | undefined>>;
   saved: boolean;
+  extensionsList: ExtensionsList;
+  setExtensionsList: React.Dispatch<React.SetStateAction<ExtensionsList>>;
 }) {
   const [openProjectSettings, setOpenProjectSettings] = useState(false);
+  const [openExtensionsSettings, setOpenExtensionsSettings] = useState(false);
   return (
     <>
       <header className="select-none bg-gray-50 flex-none">
@@ -58,7 +64,9 @@ export default function Header({
           <MenubarMenu>
             <MenubarTrigger>Settings</MenubarTrigger>
             <MenubarContent>
-              <MenubarItem>Manage extensions</MenubarItem>
+              <MenubarItem onClick={() => setOpenExtensionsSettings(true)}>
+                Manage extensions
+              </MenubarItem>
             </MenubarContent>
           </MenubarMenu>
           <MenubarMenu>
@@ -79,6 +87,12 @@ export default function Header({
         setProjectFile={
           setProjectFile as React.Dispatch<React.SetStateAction<ProjectFile>>
         }
+      />
+      <ExtensionsSettings
+        open={openExtensionsSettings}
+        setOpen={setOpenExtensionsSettings}
+        extensionsList={extensionsList}
+        setExtensionsList={setExtensionsList}
       />
     </>
   );
