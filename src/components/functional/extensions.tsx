@@ -1,6 +1,5 @@
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -10,17 +9,20 @@ import { ExtensionsList } from "@/types/extensionsList";
 import { Switch } from "../ui/switch";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { BsTrash3 } from "react-icons/bs";
 
 export default function ExtensionsSettings({
   open,
   setOpen,
   extensionsList,
   setExtensionsList,
+  defaultExtensionsList,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   extensionsList: ExtensionsList;
   setExtensionsList: React.Dispatch<React.SetStateAction<ExtensionsList>>;
+  defaultExtensionsList: ExtensionsList | undefined;
 }) {
   return (
     <Dialog open={open} onOpenChange={open => setOpen(open)}>
@@ -38,6 +40,16 @@ export default function ExtensionsSettings({
                   extensionsList.map(ext =>
                     ext.path === extension.path ? extension : ext
                   )
+                );
+              }}
+              isDefault={
+                !!defaultExtensionsList?.find(
+                  ext => ext.path === extension.path
+                )
+              }
+              remove={() => {
+                setExtensionsList(
+                  extensionsList.filter(ext => ext.path !== extension.path)
                 );
               }}
             />
@@ -58,6 +70,7 @@ export default function ExtensionsSettings({
                     version: "latest" as ExtensionsList[0]["version"],
                   })),
               ]);
+              e.currentTarget.reset();
             }}
           >
             <h2>add extension</h2>
@@ -91,12 +104,16 @@ export default function ExtensionsSettings({
 function Extension({
   extension,
   setExtension,
+  isDefault,
+  remove,
 }: {
   extension: ExtensionsList[0];
   setExtension: (extension: ExtensionsList[0]) => void;
+  isDefault?: boolean;
+  remove: () => void;
 }) {
   return (
-    <div className="flex">
+    <div className="flex items-center gap-4">
       <p className="flex-1">{extension.path}</p>
       <Switch
         className="flex-none"
@@ -105,6 +122,13 @@ function Extension({
           setExtension({ ...extension, valid: checked })
         }
       />
+      <Button
+        className="flex-none bg-gray-100 hover:bg-red-500 text-black disabled:bg-gray-300 disabled:opacity-60"
+        disabled={isDefault}
+        onClick={remove}
+      >
+        <BsTrash3 />
+      </Button>
     </div>
   );
 }

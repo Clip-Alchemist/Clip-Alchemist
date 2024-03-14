@@ -10,7 +10,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { ToastAction } from "@/components/ui/toast";
+import { ToastAction, ToastActionElement } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useExtensions } from "../common/hooks/useExtensions";
@@ -18,6 +18,13 @@ import { useExtensions } from "../common/hooks/useExtensions";
 export default function Home() {
   const [activeScript, setActiveScript] = useState<string | undefined>();
   const { toast } = useToast();
+  function onErrorCallback(error: Error, action?: ToastActionElement) {
+    toast({
+      title: "Error",
+      description: error.message,
+      action,
+    });
+  }
   const {
     openProjectFolder,
     saveProjectFile,
@@ -25,18 +32,16 @@ export default function Home() {
     setProjectFile,
     saved,
     projectFolder,
-  } = useProjectFolder((error: Error) => {
-    toast({
-      title: "Error",
-      description: error.message,
-      action: (
-        <ToastAction onClick={openProjectFolder} altText="Try again">
-          Try again
-        </ToastAction>
-      ),
-    });
-  });
-  const { extensionsList, setExtensionsList } = useExtensions();
+  } = useProjectFolder(e =>
+    onErrorCallback(
+      e,
+      <ToastAction onClick={openProjectFolder} altText="Try again">
+        Try again
+      </ToastAction>
+    )
+  );
+  const { extensionsList, setExtensionsList, defaultExtensionsList } =
+    useExtensions(onErrorCallback);
   return (
     <>
       <Header
@@ -47,6 +52,7 @@ export default function Home() {
         saved={saved}
         extensionsList={extensionsList}
         setExtensionsList={setExtensionsList}
+        defaultExtensionsList={defaultExtensionsList}
       />
       <main className="w-full flex-1">
         <ResizablePanelGroup className="h-full w-full" direction="vertical">

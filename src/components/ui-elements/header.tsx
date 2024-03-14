@@ -20,6 +20,7 @@ export default function Header({
   saved,
   extensionsList,
   setExtensionsList,
+  defaultExtensionsList,
 }: {
   openProjectFolder: () => void;
   saveProjectFile: () => void;
@@ -28,6 +29,7 @@ export default function Header({
   saved: boolean;
   extensionsList: ExtensionsList;
   setExtensionsList: React.Dispatch<React.SetStateAction<ExtensionsList>>;
+  defaultExtensionsList: ExtensionsList | undefined;
 }) {
   const [openProjectSettings, setOpenProjectSettings] = useState(false);
   const [openExtensionsSettings, setOpenExtensionsSettings] = useState(false);
@@ -93,6 +95,7 @@ export default function Header({
         setOpen={setOpenExtensionsSettings}
         extensionsList={extensionsList}
         setExtensionsList={setExtensionsList}
+        defaultExtensionsList={defaultExtensionsList}
       />
     </>
   );
