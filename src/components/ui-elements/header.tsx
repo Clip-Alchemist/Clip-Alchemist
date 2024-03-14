@@ -1,39 +1,85 @@
-export default function Header() {
+"use client";
+import { useProjectFolder } from "@/common/hooks/useProjectFolder";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import ProjectSettings from "../functional/projectSettings";
+import { useState } from "react";
+import { ProjectFile } from "@/types/projectFile";
+export default function Header({
+  openProjectFolder,
+  saveProjectFile,
+  projectFile,
+  setProjectFile,
+  saved,
+}: {
+  openProjectFolder: () => void;
+  saveProjectFile: () => void;
+  projectFile?: ProjectFile;
+  setProjectFile: React.Dispatch<React.SetStateAction<ProjectFile | undefined>>;
+  saved: boolean;
+}) {
+  const [openProjectSettings, setOpenProjectSettings] = useState(false);
   return (
-    <header className="select-none bg-gray-50 flex-none h-12 fixed top-0 inset-x-0">
-      <div>
-        <p className="w-full text-center my-0">Clip Alchemist</p>
-      </div>
-      <nav>
-        <ul className="flex">
-          <li>
-            <Menu
-              title="File"
-              items={[{ name: "New" }, { name: "Open" }, { name: "Save" }]}
-            />
-          </li>
-          <li>
-            <Menu title="Settings" />
-          </li>
-          <li>
-            <Menu title="help" />
-          </li>
-        </ul>
-      </nav>
-    </header>
-  );
-}
-function Menu({ title, items }: { title: string; items?: { name: string }[] }) {
-  return (
-    <div className="group hover:bg-gray-100">
-      <p className="px-4">{title}</p>
-      <ul className="hidden group-hover:block fixed bg-gray-100">
-        {items?.map((item, i) => (
-          <li key={i} className="p-2">
-            <button>{item.name}</button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <header className="select-none bg-gray-50 flex-none">
+        <div>
+          <p className="w-full text-center my-0">
+            {!saved && "*"}
+            {projectFile?.name ? projectFile.name : "Clip Alchemist"}
+          </p>
+        </div>
+        <Menubar className="bg-gray-50">
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>New</MenubarItem>
+              <MenubarItem onClick={openProjectFolder}>
+                Open<MenubarShortcut>Ctrl+O</MenubarShortcut>
+              </MenubarItem>
+              <MenubarItem onClick={saveProjectFile} disabled={!projectFile}>
+                Save<MenubarShortcut>Ctrl+S</MenubarShortcut>
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger>Edit</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem onClick={() => setOpenProjectSettings(true)}>
+                Project Settings
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger>Settings</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>Manage extensions</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger>Help</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>About</MenubarItem>
+              <MenubarItem>Documentation</MenubarItem>
+              <MenubarItem>Version</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <div className="h-full static" />
+      </header>
+      <ProjectSettings
+        open={openProjectSettings}
+        setOpen={setOpenProjectSettings}
+        projectFile={projectFile}
+        setProjectFile={
+          setProjectFile as React.Dispatch<React.SetStateAction<ProjectFile>>
+        }
+      />
+    </>
   );
 }
