@@ -33,7 +33,8 @@ export function useExtensions(onErrorCallback?: (error: Error) => void) {
                 : `/extensions/${extension.path}`) + "/extension.json"
             )
               .then(res => res.json())
-              .catch(() => {
+              .catch(_e => {
+                // TODO: Sometimes same error toast is shown multiple times
                 onErrorCallback?.(
                   new Error(
                     "Failed to fetch extension details. Extension path:" +

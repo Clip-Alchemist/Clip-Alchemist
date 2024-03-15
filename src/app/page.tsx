@@ -10,19 +10,20 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { ToastAction, ToastActionElement } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useState } from "react";
 import { useExtensions } from "../common/hooks/useExtensions";
 
 export default function Home() {
   const [activeScript, setActiveScript] = useState<string | undefined>();
-  const { toast } = useToast();
-  function onErrorCallback(error: Error, action?: ToastActionElement) {
-    toast({
-      title: "Error",
+  function onErrorCallback(error: Error, action?: any) {
+    toast("Error", {
       description: error.message,
       action,
+      style: {
+        background: "#ffcdd2",
+      },
+      duration: Infinity,
     });
   }
   const {
@@ -33,12 +34,7 @@ export default function Home() {
     saved,
     projectFolder,
   } = useProjectFolder(e =>
-    onErrorCallback(
-      e,
-      <ToastAction onClick={openProjectFolder} altText="Try again">
-        Try again
-      </ToastAction>
-    )
+    onErrorCallback(e, { label: "Try again", onClick: openProjectFolder })
   );
   const { extensionsList, setExtensionsList, defaultExtensionsList } =
     useExtensions(onErrorCallback);
