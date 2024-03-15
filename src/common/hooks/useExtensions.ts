@@ -2,6 +2,8 @@
 import { useLocalStorage } from "@/common/hooks/localStorage";
 import { useEffect, useState } from "react";
 import { ExtensionsList } from "../../types/extensionsList";
+import { EnabledExtensions } from "@/types/extensionInfo";
+import { getExtensionInfo } from "@/lib/extension/getExtensionInfo";
 
 export function useExtensions(onErrorCallback?: (error: Error) => void) {
   const [extensionsList, setExtensionsList] = useLocalStorage<ExtensionsList>(
@@ -10,6 +12,9 @@ export function useExtensions(onErrorCallback?: (error: Error) => void) {
   );
   const [defaultExtensionsList, setDefaultExtensionsList] =
     useState<ExtensionsList>();
+  const [enabledExtensions, setEnabledExtensions] = useState<EnabledExtensions>(
+    {}
+  );
   useEffect(() => {
     (async () => {
       try {
@@ -25,33 +30,40 @@ export function useExtensions(onErrorCallback?: (error: Error) => void) {
           }, [])
         );
         if ("serviceWorker" in navigator) {
-          extensionsList.forEach(async extension => {
-            if (!extension.valid) return;
-            const extensionDetail = await fetch(
-              (extension.path.startsWith("http")
-                ? extension
-                : `/extensions/${extension.path}`) + "/extension.json"
-            )
-              .then(res => res.json())
-              .catch(_e => {
-                // TODO: Sometimes same error toast is shown multiple times
-                onErrorCallback?.(
-                  new Error(
-                    "Failed to fetch extension details. Extension path:" +
-                      extension.path
-                  )
+          await Promise.all(
+            extensionsList.map(extension => {
+              return new Promise<void>(async resolve => {
+                if (!extension.valid) return;
+                const extensionDetail = await getExtensionInfo(
+                  extension.path,
+                  () =>
+                    onErrorCallback?.(
+                      new Error(
+                        "Failed to fetch extension details. Extension path:" +
+                          extension.path
+                      )
+                    )
                 );
+                setEnabledExtensions(prev => {
+                  return {
+                    ...prev,
+                    [extension.path]: extensionDetail ?? "Error",
+                  };
+                });
+                if (extensionDetail == "Error") return resolve();
+                await extensionDetail?.scripts?.serviceWorker?.forEach(
+                  async (sw: string) => {
+                    await navigator.serviceWorker.register(
+                      extension.path.startsWith("http")
+                        ? sw
+                        : `./extensions/${extension.path}/${sw}`
+                    );
+                  }
+                );
+                resolve();
               });
-            await extensionDetail?.scripts?.serviceWorker?.forEach(
-              async (sw: string) => {
-                await navigator.serviceWorker.register(
-                  extension.path.startsWith("http")
-                    ? sw
-                    : `./extensions/${extension.path}/${sw}`
-                );
-              }
-            );
-          });
+            })
+          );
         }
       } catch (e: any) {
         onErrorCallback?.(e);
@@ -66,5 +78,10 @@ export function useExtensions(onErrorCallback?: (error: Error) => void) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return { extensionsList, setExtensionsList, defaultExtensionsList };
+  return {
+    extensionsList,
+    setExtensionsList,
+    defaultExtensionsList,
+    enabledExtensions,
+  };
 }

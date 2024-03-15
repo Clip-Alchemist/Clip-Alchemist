@@ -10,6 +10,10 @@ import { Switch } from "../ui/switch";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { BsTrash3 } from "react-icons/bs";
+import { EnabledExtensions, ExtensionInfo } from "@/types/extensionInfo";
+import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { getExtensionInfo } from "@/lib/extension/getExtensionInfo";
 
 export default function ExtensionsSettings({
   open,
@@ -17,12 +21,14 @@ export default function ExtensionsSettings({
   extensionsList,
   setExtensionsList,
   defaultExtensionsList,
+  enabledExtensions,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   extensionsList: ExtensionsList;
   setExtensionsList: React.Dispatch<React.SetStateAction<ExtensionsList>>;
   defaultExtensionsList: ExtensionsList | undefined;
+  enabledExtensions: EnabledExtensions;
 }) {
   return (
     <Dialog open={open} onOpenChange={open => setOpen(open)}>
@@ -35,6 +41,7 @@ export default function ExtensionsSettings({
             <Extension
               key={extension.path}
               extension={extension}
+              extensionInfo={enabledExtensions[extension.path]}
               setExtension={extension => {
                 setExtensionsList(
                   extensionsList.map(ext =>
@@ -104,17 +111,40 @@ export default function ExtensionsSettings({
 function Extension({
   extension,
   setExtension,
+  extensionInfo: cashedExtensionInfo,
   isDefault,
   remove,
 }: {
   extension: ExtensionsList[0];
   setExtension: (extension: ExtensionsList[0]) => void;
+  extensionInfo: ExtensionInfo | "Error" | undefined;
   isDefault?: boolean;
   remove: () => void;
 }) {
+  const [extensionInfo, setExtensionInfo] = useState<
+    ExtensionInfo | "Error" | undefined
+  >(cashedExtensionInfo);
+  useEffect(() => {
+    if (typeof cashedExtensionInfo === "object") return;
+    (async () => {
+      const extensionDetail = await getExtensionInfo(extension.path);
+      setExtensionInfo(extensionDetail);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
-    <div className="flex items-center gap-4">
-      <p className="flex-1">{extension.path}</p>
+    <div
+      className={cn(
+        "flex items-center gap-4 p-2 rounded",
+        extensionInfo == "Error" ? "bg-red-200" : "",
+        extensionInfo == undefined ? "opacity-80" : ""
+      )}
+    >
+      <p className="flex-1">
+        {typeof extensionInfo === "object"
+          ? extensionInfo?.name
+          : `${extension.path} ${extensionInfo === "Error" ? "(Error)" : "(loading)"}`}
+      </p>
       <Switch
         className="flex-none"
         checked={extension.valid}

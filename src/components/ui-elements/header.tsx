@@ -12,6 +12,7 @@ import { useState } from "react";
 import { ProjectFile } from "@/types/projectFile";
 import ExtensionsSettings from "../functional/extensions";
 import { ExtensionsList } from "@/types/extensionsList";
+import { EnabledExtensions } from "@/types/extensionInfo";
 export default function Header({
   openProjectFolder,
   saveProjectFile,
@@ -21,6 +22,7 @@ export default function Header({
   extensionsList,
   setExtensionsList,
   defaultExtensionsList,
+  enabledExtensions,
 }: {
   openProjectFolder: () => void;
   saveProjectFile: () => void;
@@ -30,6 +32,7 @@ export default function Header({
   extensionsList: ExtensionsList;
   setExtensionsList: React.Dispatch<React.SetStateAction<ExtensionsList>>;
   defaultExtensionsList: ExtensionsList | undefined;
+  enabledExtensions: EnabledExtensions;
 }) {
   const [openProjectSettings, setOpenProjectSettings] = useState(false);
   const [openExtensionsSettings, setOpenExtensionsSettings] = useState(false);
@@ -96,6 +99,7 @@ export default function Header({
         extensionsList={extensionsList}
         setExtensionsList={setExtensionsList}
         defaultExtensionsList={defaultExtensionsList}
+        enabledExtensions={enabledExtensions}
       />
     </>
   );

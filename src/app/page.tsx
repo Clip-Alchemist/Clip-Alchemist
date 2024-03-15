@@ -23,7 +23,7 @@ export default function Home() {
       style: {
         background: "#ffcdd2",
       },
-      duration: Infinity,
+      duration: 1000,
     });
   }
   const {
@@ -36,8 +36,12 @@ export default function Home() {
   } = useProjectFolder(e =>
     onErrorCallback(e, { label: "Try again", onClick: openProjectFolder })
   );
-  const { extensionsList, setExtensionsList, defaultExtensionsList } =
-    useExtensions(onErrorCallback);
+  const {
+    extensionsList,
+    setExtensionsList,
+    defaultExtensionsList,
+    enabledExtensions,
+  } = useExtensions(onErrorCallback);
   return (
     <>
       <Header
@@ -49,6 +53,7 @@ export default function Home() {
         extensionsList={extensionsList}
         setExtensionsList={setExtensionsList}
         defaultExtensionsList={defaultExtensionsList}
+        enabledExtensions={enabledExtensions}
       />
       <main className="w-full flex-1">
         <ResizablePanelGroup className="h-full w-full" direction="vertical">
