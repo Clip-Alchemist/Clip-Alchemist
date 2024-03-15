@@ -1,8 +1,9 @@
 export type ExtensionInfo = {
   name: string;
   id: string;
-  version: string;
+  version: `${number}.${number}.${number}`;
   author: string;
+  description?: string;
   scripts?: {
     serviceWorker?: string[];
   };
