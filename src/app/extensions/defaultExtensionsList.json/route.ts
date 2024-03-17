@@ -7,6 +7,11 @@ export function GET() {
       valid: true,
       version: "latest",
     },
+    {
+      path: "image",
+      valid: true,
+      version: "latest",
+    },
   ];
   return Response.json(defaultExtensionsList);
 }

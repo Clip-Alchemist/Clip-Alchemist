@@ -7,6 +7,7 @@ export type ExtensionInfo = {
   scripts?: {
     serviceWorker?: string[];
   };
+  acceptMimeTypes?: MIMEType[];
 };
 export type EnabledExtensions = {
   [key: string]: ExtensionInfo | "Error";
