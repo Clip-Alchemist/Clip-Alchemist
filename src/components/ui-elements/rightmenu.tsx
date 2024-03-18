@@ -1,11 +1,12 @@
 import { ProjectFile, Script } from "@/types/projectFile";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { EnabledExtensions } from "@/types/extensionInfo";
 import { commonOptions } from "@/lib/extension/commonOptions";
 import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 // import { FontInput } from "./fontInput";
+
 export default function RightMenu({
   activeScript,
   projectFile,

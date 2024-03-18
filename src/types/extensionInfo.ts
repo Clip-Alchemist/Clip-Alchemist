@@ -10,6 +10,7 @@ export type ExtensionInfo = {
     serviceWorker?: string[];
   };
   acceptMimeTypes?: MIMEType[];
+  media?: Media;
   scriptOption?: {
     [optionName: string]: {
       default: any;
@@ -23,4 +24,11 @@ export type ExtensionInfo = {
 };
 export type EnabledExtensions = {
   [key: extensionPath]: ExtensionInfo | "Error";
+};
+export type Media = {
+  [key: string]: {
+    name: string;
+    backgroundColor: string;
+    icon?: string;
+  };
 };

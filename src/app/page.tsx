@@ -87,6 +87,7 @@ export default function Home() {
               setProjectFile={setProjectFile}
               activeScript={activeScript}
               setActiveScript={setActiveScript}
+              enabledExtensions={enabledExtensions}
             />
           </ResizablePanel>
         </ResizablePanelGroup>

@@ -6,6 +6,12 @@ export function GET() {
     id: "clip-alchemist.text",
     version: "0.0.1",
     author: "Clip Alchemist",
+    media: {
+      text: {
+        name: "Text",
+        backgroundColor: "#66d4ea",
+      },
+    },
     scriptOption: {
       text: {
         default: "",

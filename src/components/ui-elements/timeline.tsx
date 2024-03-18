@@ -3,12 +3,23 @@ import { convertRemToPx } from "@/lib/css/convertRemToPx";
 import { cn } from "@/lib/utils";
 import { ProjectFile, Script } from "@/types/projectFile";
 import React, { useState } from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "../ui/context-menu";
+import { EnabledExtensions, Media } from "@/types/extensionInfo";
 
 export default function Timeline({
   projectFile,
   setProjectFile,
   activeScript,
   setActiveScript,
+  enabledExtensions,
 }: {
   projectFile?: ProjectFile;
   setProjectFile?: React.Dispatch<
@@ -16,6 +27,7 @@ export default function Timeline({
   >;
   activeScript?: string;
   setActiveScript?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  enabledExtensions: EnabledExtensions;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
   const [scene, setScene] = useState(0);
@@ -78,6 +90,13 @@ export default function Timeline({
           setActiveScript={setActiveScript}
           zoomSize={zoomSize}
           fps={projectFile?.settings?.fps || 60}
+          medias={
+            Object.values(enabledExtensions)
+              .map(extension =>
+                extension !== "Error" ? extension?.media : undefined
+              )
+              .filter(m => m !== undefined) as Media[]
+          }
         />
         <TimeLineBar zoomSize={zoomSize} />
       </div>
@@ -91,6 +110,7 @@ function TimeLineMain({
   setActiveScript,
   zoomSize,
   fps,
+  medias,
 }: {
   scripts: Script[];
   setScripts: (s: Script[]) => void;
@@ -98,33 +118,50 @@ function TimeLineMain({
   setActiveScript?: React.Dispatch<React.SetStateAction<string | undefined>>;
   zoomSize: number;
   fps: number;
+  medias: Media[];
 }) {
+  console.log(medias);
+  console.log(Object.entries(medias));
   return (
-    <div>
-      {new Array(25).fill(0).map((_, i) => (
-        <div key={i} className="flex odd:bg-gray-100 opacity-100 h-10">
-          <button className="flex-none h-full w-20 text-center sticky left-0 z-20">
-            Layer{i + 1}
-          </button>
-          <div className="flex-1 relative">
-            {scripts
-              .filter((s: Script) => s.layer === i)
-              .map(s => (
-                <TimelineScript
-                  key={s.id}
-                  script={s}
-                  setScripts={setScripts}
-                  scripts={scripts}
-                  zoomSize={zoomSize}
-                  fps={fps}
-                  activeScript={activeScript}
-                  setActiveScript={setActiveScript}
-                />
-              ))}
+    <ContextMenu>
+      <ContextMenuTrigger>
+        {new Array(25).fill(0).map((_, i) => (
+          <div key={i} className="flex odd:bg-gray-100 opacity-100 h-10">
+            <button className="flex-none h-full w-20 text-center sticky left-0 z-20">
+              Layer{i + 1}
+            </button>
+            <div className="flex-1 relative">
+              {scripts
+                .filter((s: Script) => s.layer === i)
+                .map(s => (
+                  <TimelineScript
+                    key={s.id}
+                    script={s}
+                    setScripts={setScripts}
+                    scripts={scripts}
+                    zoomSize={zoomSize}
+                    fps={fps}
+                    activeScript={activeScript}
+                    setActiveScript={setActiveScript}
+                  />
+                ))}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>Add</ContextMenuSubTrigger>
+          <ContextMenuSubContent>
+            {medias.map(media =>
+              Object.entries(media).map(([key, value]) => (
+                <ContextMenuItem key={key}>{value.name}</ContextMenuItem>
+              ))
+            )}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 function TimelineScript({
