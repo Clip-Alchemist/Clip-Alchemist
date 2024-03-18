@@ -25,8 +25,8 @@ export default function Timeline({
   setProjectFile?: React.Dispatch<
     React.SetStateAction<ProjectFile | undefined>
   >;
-  activeScript?: string;
-  setActiveScript?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  activeScript: string;
+  setActiveScript: React.Dispatch<React.SetStateAction<string | undefined>>;
   enabledExtensions: EnabledExtensions;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
@@ -114,8 +114,8 @@ function TimeLineMain({
 }: {
   scripts: Script[];
   setScripts: (s: Script[]) => void;
-  activeScript?: string;
-  setActiveScript?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  activeScript: string;
+  setActiveScript: React.Dispatch<React.SetStateAction<string | undefined>>;
   zoomSize: number;
   fps: number;
   medias: Media[];
@@ -160,6 +160,16 @@ function TimeLineMain({
             )}
           </ContextMenuSubContent>
         </ContextMenuSub>
+        {activeScript && (
+          <ContextMenuItem
+            onClick={() => {
+              setScripts(scripts.filter(s => s.id !== activeScript));
+              setActiveScript(undefined);
+            }}
+          >
+            Remove
+          </ContextMenuItem>
+        )}
       </ContextMenuContent>
     </ContextMenu>
   );
