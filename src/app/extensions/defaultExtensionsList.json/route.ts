@@ -12,6 +12,11 @@ export function GET() {
       valid: true,
       version: "latest",
     },
+    {
+      path: "text",
+      valid: true,
+      version: "latest",
+    },
   ];
   return Response.json(defaultExtensionsList);
 }

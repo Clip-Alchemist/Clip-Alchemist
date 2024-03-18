@@ -1,4 +1,5 @@
 import { UUID } from "crypto";
+import { extensionId, extensionName } from "./extension";
 // projectName.clipalchemist
 export type ProjectFile = {
   name?: string;
@@ -26,6 +27,8 @@ export type Script = {
     x: number;
     y: number;
   };
-  extension: string;
-  extensionInfo: Object;
+  extension: extensionId; //extension id
+  extensionData: {
+    [key: `${extensionName}.${string}`]: any; //extensionName.option
+  };
 };
