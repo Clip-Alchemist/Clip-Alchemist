@@ -9,24 +9,28 @@ export function GET() {
     scriptOption: {
       text: {
         default: "",
-        type: "string",
         input: "text",
+        id: "text.text",
+        name: "Text",
       },
       font: {
         default: undefined,
-        type: "string",
         choices: "{font}",
         input: "font",
+        id: "text.font",
+        name: "Text Font",
       },
       fontSize: {
         default: 16,
-        type: "number",
         input: "number",
+        id: "text.fontSize",
+        name: "Font Size",
       },
       color: {
         default: "#000000",
-        type: "string",
         input: "color",
+        id: "text.color",
+        name: "Text Color",
       },
     },
   };

@@ -13,9 +13,11 @@ export type ExtensionInfo = {
   scriptOption?: {
     [optionName: string]: {
       default: any;
-      type: "string" | "number" | "boolean";
       input: "text" | "number" | "checkbox" | "color" | "font";
       choices?: string | string[];
+      id: `${extensionName}.${string}`;
+      name?: string;
+      placeholder?: string;
     };
   };
 };

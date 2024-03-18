@@ -24,12 +24,8 @@ export type Script = {
   length: number; //in seconds
   layer: number; //first layer is 0
   name?: string; //from extension
-  position: {
-    x: number;
-    y: number;
-  };
+  "position.x": number;
+  "position.y": number;
   extension: extensionId; //extension id
-  extensionData: {
-    [key: `${extensionName}.${string}`]: any; //extensionName.option
-  };
+  [key: `${extensionName}.${string}`]: any; //extensionName.option
 };
