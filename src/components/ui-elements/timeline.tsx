@@ -13,6 +13,7 @@ import {
   ContextMenuTrigger,
 } from "../ui/context-menu";
 import { EnabledExtensions, Media } from "@/types/extensionInfo";
+import { createUUID } from "@/lib/uuid";
 
 export default function Timeline({
   projectFile,
@@ -29,6 +30,7 @@ export default function Timeline({
   setActiveScript: React.Dispatch<React.SetStateAction<string | undefined>>;
   enabledExtensions: EnabledExtensions;
 }) {
+  console.log(projectFile);
   const [zoomSize, setZoomSize] = useState(2); //px per frame
   const [scene, setScene] = useState(0);
   return (
@@ -75,6 +77,7 @@ export default function Timeline({
           key={scene}
           scripts={projectFile?.scenes?.[scene]?.scripts || []}
           setScripts={s => {
+            //TODO: it seems not to move
             const currentSceneIndex = scene;
             setProjectFile?.({
               ...projectFile,
@@ -120,8 +123,6 @@ function TimeLineMain({
   fps: number;
   medias: Media[];
 }) {
-  console.log(medias);
-  console.log(Object.entries(medias));
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -155,7 +156,29 @@ function TimeLineMain({
           <ContextMenuSubContent>
             {medias.map(media =>
               Object.entries(media).map(([key, value]) => (
-                <ContextMenuItem key={key}>{value.name}</ContextMenuItem>
+                <ContextMenuItem
+                  key={key}
+                  onClick={e => {
+                    setScripts([
+                      ...scripts,
+                      {
+                        id: createUUID(),
+                        name: key,
+                        extension: "clip-alchemist.text", //debug
+                        start:
+                          e.currentTarget.getBoundingClientRect().left /
+                          zoomSize /
+                          fps,
+                        length: 1,
+                        layer: e.currentTarget.getBoundingClientRect().top / 25,
+                        "position.x": 0,
+                        "position.y": 0,
+                      },
+                    ]);
+                  }}
+                >
+                  {value.name}
+                </ContextMenuItem>
               ))
             )}
           </ContextMenuSubContent>
