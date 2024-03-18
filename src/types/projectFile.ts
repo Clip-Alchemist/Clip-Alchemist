@@ -23,6 +23,7 @@ export type Script = {
   start: number; //in seconds
   length: number; //in seconds
   layer: number; //first layer is 0
+  name?: string; //from extension
   position: {
     x: number;
     y: number;

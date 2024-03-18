@@ -86,7 +86,7 @@ export default function RightMenu({
         <CardTitle>Edit</CardTitle>
       </CardHeader>
       <CardContent>
-        {activeScript && (
+        {activeScript ? (
           <>
             {settings.map(setting => {
               if (setting.type === Number) {
@@ -168,8 +168,9 @@ export default function RightMenu({
               </div>
             ))}
           </>
+        ) : (
+          "No script selected"
         )}
-        {!activeScript && "No script selected"}
       </CardContent>
     </Card>
   );

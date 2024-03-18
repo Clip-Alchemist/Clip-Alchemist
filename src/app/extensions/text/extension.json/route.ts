@@ -8,7 +8,7 @@ export function GET() {
     author: "Clip Alchemist",
     scriptOption: {
       text: {
-        default: "Hello, World!",
+        default: "",
         type: "string",
         input: "text",
       },
