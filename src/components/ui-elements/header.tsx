@@ -13,6 +13,8 @@ import { ProjectFile } from "@/types/projectFile";
 import ExtensionsSettings from "../functional/extensions";
 import { ExtensionsList } from "@/types/extensionsList";
 import { EnabledExtensions } from "@/types/extensionInfo";
+import Link from "next/link";
+import { isElectron } from "@/common/isElectron";
 export default function Header({
   openProjectFolder,
   saveProjectFile,
@@ -51,10 +53,10 @@ export default function Header({
             <MenubarContent>
               <MenubarItem>New</MenubarItem>
               <MenubarItem onClick={openProjectFolder}>
-                Open<MenubarShortcut>Ctrl+O</MenubarShortcut>
+                Open Project<MenubarShortcut>Ctrl+O</MenubarShortcut>
               </MenubarItem>
               <MenubarItem onClick={saveProjectFile} disabled={!projectFile}>
-                Save<MenubarShortcut>Ctrl+S</MenubarShortcut>
+                Save Project<MenubarShortcut>Ctrl+S</MenubarShortcut>
               </MenubarItem>
             </MenubarContent>
           </MenubarMenu>
@@ -77,9 +79,24 @@ export default function Header({
           <MenubarMenu>
             <MenubarTrigger>Help</MenubarTrigger>
             <MenubarContent>
-              <MenubarItem>About</MenubarItem>
-              <MenubarItem>Documentation</MenubarItem>
-              <MenubarItem>Version</MenubarItem>
+              <MenubarItem asChild>
+                <Link href="/about" target="_blank">
+                  About
+                </Link>
+              </MenubarItem>
+              <MenubarItem asChild>
+                <Link href="documentation" target="_blank">
+                  Documentation
+                </Link>
+              </MenubarItem>
+              <MenubarItem>Version Info</MenubarItem>
+              {!isElectron() && (
+                <MenubarItem asChild>
+                  <Link href="/download" target="_blank">
+                    Download App
+                  </Link>
+                </MenubarItem>
+              )}
             </MenubarContent>
           </MenubarMenu>
         </Menubar>
