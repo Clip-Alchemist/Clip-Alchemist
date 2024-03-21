@@ -1,4 +1,3 @@
-import { MIMEType } from "util";
 import { extensionId, extensionName, extensionPath } from "./extension";
 
 export type ExtensionInfo = {
@@ -38,3 +37,4 @@ export type ExtensionsList = {
   valid: boolean;
   version: "latest" | `${number}.${number}.${number}`;
 }[];
+type MIMEType = `${string}/${string}` | string;
