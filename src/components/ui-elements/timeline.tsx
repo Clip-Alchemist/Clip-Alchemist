@@ -34,7 +34,7 @@ export default function Timeline({
   const [zoomSize, setZoomSize] = useState(2); //px per frame
   const [scene, setScene] = useState(0);
   return (
-    <div className="w-full h-full overflow-scroll hidden-scrollbar">
+    <div className="w-full h-full overflow-scroll hidden-scrollbar" key={scene}>
       <div className="w-max relative">
         <div className="flex h-6 inset-x-0 sticky top-0 bg-gray-50 z-10">
           <select
@@ -74,7 +74,6 @@ export default function Timeline({
           </nav>
         </div>
         <RightClickMenu
-          key={scene}
           scripts={projectFile?.scenes?.[scene]?.scripts || []}
           setScripts={s => {
             //TODO: it seems not to move
@@ -123,32 +122,46 @@ function RightClickMenu({
   fps: number;
   medias: Media[];
 }) {
+  const [x, setX] = useState(0);
+  const [selectedLayer, setSelectedLayer] = useState(0);
   return (
     <ContextMenu>
-      <ContextMenuTrigger>
-        {new Array(25).fill(0).map((_, i) => (
-          <div key={i} className="flex odd:bg-gray-100 opacity-100 h-10">
-            <button className="flex-none h-full w-20 text-center sticky left-0 z-20">
-              Layer{i + 1}
-            </button>
-            <div className="flex-1 relative">
-              {scripts
-                .filter((s: Script) => s.layer === i)
-                .map(s => (
-                  <TimelineScript
-                    key={s.id}
-                    script={s}
-                    setScripts={setScripts}
-                    scripts={scripts}
-                    zoomSize={zoomSize}
-                    fps={fps}
-                    activeScript={activeScript}
-                    setActiveScript={setActiveScript}
-                  />
-                ))}
+      <ContextMenuTrigger
+        onContextMenu={e => {
+          setX(e.nativeEvent.offsetX);
+          setSelectedLayer(
+            Math.round(
+              (e.clientY - e.currentTarget.getBoundingClientRect().top) /
+                convertRemToPx(2.5)
+            )
+          );
+        }}
+      >
+        <>
+          {new Array(25).fill(0).map((_, i) => (
+            <div key={i} className="flex odd:bg-gray-100 opacity-100 h-10">
+              <button className="flex-none h-full w-20 text-center sticky left-0 z-20">
+                Layer{i + 1}
+              </button>
+              <div className="flex-1 relative">
+                {scripts
+                  .filter((s: Script) => s.layer === i)
+                  .map(s => (
+                    <TimelineScript
+                      key={s.id}
+                      script={s}
+                      setScripts={setScripts}
+                      scripts={scripts}
+                      zoomSize={zoomSize}
+                      fps={fps}
+                      activeScript={activeScript}
+                      setActiveScript={setActiveScript}
+                    />
+                  ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuSub>
@@ -158,23 +171,16 @@ function RightClickMenu({
               Object.entries(media).map(([key, value]) => (
                 <ContextMenuItem
                   key={key}
-                  onClick={e => {
+                  onClick={() => {
                     setScripts([
                       ...scripts,
                       {
                         id: createUUID() as UUID,
                         name: key,
                         extension: "clip-alchemist.text", //debug
-                        start:
-                          (e.currentTarget.getBoundingClientRect().left -
-                            convertRemToPx(5)) /
-                          zoomSize /
-                          fps,
+                        start: x / zoomSize / fps,
                         length: 1,
-                        layer: Math.round(
-                          e.currentTarget.getBoundingClientRect().top /
-                            convertRemToPx(2.5)
-                        ),
+                        layer: Math.round(selectedLayer),
                         "position.x": 0,
                         "position.y": 0,
                       },
