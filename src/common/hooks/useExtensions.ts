@@ -1,8 +1,7 @@
 "use client";
 import { useLocalStorage } from "@/common/hooks/localStorage";
 import { useEffect, useState } from "react";
-import { ExtensionsList } from "../../types/extensionsList";
-import { EnabledExtensions } from "@/types/extensionInfo";
+import { EnabledExtensions, ExtensionsList } from "@/types/extensionInfo";
 import { getExtensionInfo } from "@/lib/extension/getExtensionInfo";
 
 export function useExtensions(onErrorCallback?: (error: Error) => void) {
