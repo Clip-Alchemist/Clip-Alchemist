@@ -21,7 +21,12 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "jest", "@testing-library/jest-dom"]
+    "types": [
+      "node",
+      "jest",
+      "@testing-library/jest-dom",
+      "@types/wicg-file-system-access"
+    ]
   },
   "include": [
     "next-env.d.ts",
