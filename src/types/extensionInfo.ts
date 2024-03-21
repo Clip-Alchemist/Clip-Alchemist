@@ -1,9 +1,10 @@
+import { MIMEType } from "util";
 import { extensionId, extensionName, extensionPath } from "./extension";
 
 export type ExtensionInfo = {
   name: extensionName;
   id: extensionId;
-  version: `${number}.${number}.${number}`;
+  version: "latest" | `${number}.${number}.${number}`;
   author: string;
   description?: string;
   scripts?: {
@@ -32,3 +33,8 @@ export type Media = {
     icon?: string;
   };
 };
+export type ExtensionsList = {
+  path: string; // path to extensions directory top (if it place is under "/public/extensions/", you can set under the path of "/public/extensions/")
+  valid: boolean;
+  version: "latest" | `${number}.${number}.${number}`;
+}[];

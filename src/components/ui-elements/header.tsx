@@ -11,8 +11,7 @@ import ProjectSettings from "../functional/projectSettings";
 import { useState } from "react";
 import { ProjectFile } from "@/types/projectFile";
 import ExtensionsSettings from "../functional/extensions";
-import { ExtensionsList } from "@/types/extensionsList";
-import { EnabledExtensions } from "@/types/extensionInfo";
+import { EnabledExtensions, ExtensionsList } from "@/types/extensionInfo";
 import Link from "next/link";
 import { isElectron } from "@/common/isElectron";
 export default function Header({

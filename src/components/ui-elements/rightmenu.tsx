@@ -1,7 +1,6 @@
 import { ProjectFile, Script } from "@/types/projectFile";
 import { EnabledExtensions } from "@/types/extensionInfo";
 import { commonOptions } from "@/lib/extension/commonOptions";
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -88,7 +87,10 @@ export default function RightMenu({
                   onChange={e =>
                     setCurrentScript({
                       ...currentScript,
-                      [option.id]: e.target.value,
+                      [option.id]:
+                        option.input == "number"
+                          ? Number(e.target.value)
+                          : e.target.value,
                     } as Script)
                   }
                   placeholder={option?.placeholder || ""}

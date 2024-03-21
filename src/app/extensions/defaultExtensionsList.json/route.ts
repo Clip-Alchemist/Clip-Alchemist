@@ -1,4 +1,4 @@
-import { ExtensionsList } from "@/types/extensionsList";
+import { ExtensionsList } from "@/types/extensionInfo";
 
 export function GET() {
   const defaultExtensionsList: ExtensionsList = [

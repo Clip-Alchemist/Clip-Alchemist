@@ -14,13 +14,13 @@ export const commonOptions: ExtensionInfo["scriptOption"] = {
     default: 0,
   },
   "position.x": {
-    name: "position",
+    name: "x",
     id: "position.x",
     input: "number",
     default: 0,
   },
   "position.y": {
-    name: "position",
+    name: "y",
     id: "position.y",
     input: "number",
     default: 0,

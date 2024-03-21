@@ -4,7 +4,7 @@ import FileTree from "@/components/ui-elements/filetree";
 import Header from "@/components/ui-elements/header";
 import MoviePreview from "@/components/ui-elements/movie_preview";
 import RightMenu from "@/components/ui-elements/rightmenu";
-import Timeline from "@/components/ui-elements/timeline";
+import Timeline from "@/components/ui-elements/timeline/timeline";
 import {
   ResizableHandle,
   ResizablePanel,

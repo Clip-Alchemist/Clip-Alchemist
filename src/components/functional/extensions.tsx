@@ -5,12 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ExtensionsList } from "@/types/extensionsList";
 import { Switch } from "../ui/switch";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { BsTrash3 } from "react-icons/bs";
-import { EnabledExtensions, ExtensionInfo } from "@/types/extensionInfo";
+import { EnabledExtensions, ExtensionInfo, ExtensionsList } from "@/types/extensionInfo";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getExtensionInfo } from "@/lib/extension/getExtensionInfo";
