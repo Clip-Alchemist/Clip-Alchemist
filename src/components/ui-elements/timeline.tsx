@@ -14,6 +14,7 @@ import {
 } from "../ui/context-menu";
 import { EnabledExtensions, Media } from "@/types/extensionInfo";
 import { createUUID } from "@/lib/uuid";
+import { UUID } from "crypto";
 
 export default function Timeline({
   projectFile,
@@ -26,7 +27,7 @@ export default function Timeline({
   setProjectFile?: React.Dispatch<
     React.SetStateAction<ProjectFile | undefined>
   >;
-  activeScript: string;
+  activeScript?: string;
   setActiveScript: React.Dispatch<React.SetStateAction<string | undefined>>;
   enabledExtensions: EnabledExtensions;
 }) {
@@ -116,7 +117,7 @@ function RightClickMenu({
 }: {
   scripts: Script[];
   setScripts: (s: Script[]) => void;
-  activeScript: string;
+  activeScript?: string;
   setActiveScript: React.Dispatch<React.SetStateAction<string | undefined>>;
   zoomSize: number;
   fps: number;
@@ -161,7 +162,7 @@ function RightClickMenu({
                     setScripts([
                       ...scripts,
                       {
-                        id: createUUID(),
+                        id: createUUID() as UUID,
                         name: key,
                         extension: "clip-alchemist.text", //debug
                         start:
