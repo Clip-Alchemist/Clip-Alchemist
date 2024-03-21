@@ -30,7 +30,6 @@ export default function Timeline({
   setActiveScript: React.Dispatch<React.SetStateAction<string | undefined>>;
   enabledExtensions: EnabledExtensions;
 }) {
-  console.log(projectFile);
   const [zoomSize, setZoomSize] = useState(2); //px per frame
   const [scene, setScene] = useState(0);
   return (
@@ -73,7 +72,7 @@ export default function Timeline({
             </button>
           </nav>
         </div>
-        <TimeLineMain
+        <RightClickMenu
           key={scene}
           scripts={projectFile?.scenes?.[scene]?.scripts || []}
           setScripts={s => {
@@ -106,7 +105,7 @@ export default function Timeline({
     </div>
   );
 }
-function TimeLineMain({
+function RightClickMenu({
   scripts,
   setScripts,
   activeScript,
@@ -166,11 +165,15 @@ function TimeLineMain({
                         name: key,
                         extension: "clip-alchemist.text", //debug
                         start:
-                          e.currentTarget.getBoundingClientRect().left /
+                          (e.currentTarget.getBoundingClientRect().left -
+                            convertRemToPx(5)) /
                           zoomSize /
                           fps,
                         length: 1,
-                        layer: e.currentTarget.getBoundingClientRect().top / 25,
+                        layer: Math.round(
+                          e.currentTarget.getBoundingClientRect().top /
+                            convertRemToPx(2.5)
+                        ),
                         "position.x": 0,
                         "position.y": 0,
                       },
