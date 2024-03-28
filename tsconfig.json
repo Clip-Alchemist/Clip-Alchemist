@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "checkJs": true,
     "plugins": [
       {
         "name": "next"
@@ -33,7 +34,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    "electron/index.mjs",
+    "src/app/meta.mjs"
   ],
   "exclude": ["node_modules"]
 }

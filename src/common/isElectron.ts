@@ -1,3 +1,3 @@
 export function isElectron() {
-  return false; //test
+  return process.env.APP_MODE === "Electron";
 }
