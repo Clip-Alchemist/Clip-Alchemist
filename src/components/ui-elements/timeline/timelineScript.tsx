@@ -35,7 +35,41 @@ export default function TimelineScript({
       }}
       onClick={() => setActiveScript?.(s.id)}
     >
-      <div className="w-0.5 hover:bg-blue-300 h-full hover:cursor-col-resize flex-none" />
+      <div
+        className="w-0.5 hover:bg-blue-300 h-full hover:cursor-col-resize flex-none"
+        onMouseDown={e => {
+          const startX = e.clientX;
+          document.body.style.cursor = "col-resize";
+          const onMouseMove = (e: MouseEvent) => {
+            setScripts(
+              scripts.map((script: Script) => {
+                if (script.id === s.id) {
+                  return {
+                    ...script,
+                    start: Math.max(
+                      0,
+                      script.start + (e.clientX - startX) / zoomSize / fps
+                    ),
+                    length: Math.max(
+                      0,
+                      script.length - (e.clientX - startX) / zoomSize / fps
+                    ),
+                  };
+                }
+                return script;
+              })
+            );
+          };
+          const onMouseUp = () => {
+            document.body.style.cursor = "auto";
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+          };
+          window.addEventListener("mousemove", onMouseMove);
+          window.addEventListener("mouseup", onMouseUp);
+        }}
+        data-testid="resize-start"
+      />
       <div
         className="flex-1"
         onMouseDown={e => {
@@ -75,7 +109,37 @@ export default function TimelineScript({
       >
         {s?.name || s.extension}
       </div>
-      <div className="w-0.5 hover:bg-blue-300 h-full hover:cursor-col-resize flex-none" />
+      <div
+        className="w-0.5 hover:bg-blue-300 h-full hover:cursor-col-resize flex-none"
+        onMouseDown={e => {
+          const startX = e.clientX;
+          document.body.style.cursor = "col-resize";
+          const onMouseMove = (e: MouseEvent) => {
+            setScripts(
+              scripts.map((script: Script) => {
+                if (script.id === s.id) {
+                  return {
+                    ...script,
+                    length: Math.max(
+                      0,
+                      script.length + (e.clientX - startX) / zoomSize / fps
+                    ),
+                  };
+                }
+                return script;
+              })
+            );
+          };
+          const onMouseUp = () => {
+            document.body.style.cursor = "auto";
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+          };
+          window.addEventListener("mousemove", onMouseMove);
+          window.addEventListener("mouseup", onMouseUp);
+        }}
+        data-testid="resize-end"
+      />
     </div>
   );
 }
