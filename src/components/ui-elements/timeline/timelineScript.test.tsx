@@ -34,33 +34,6 @@ describe("TimelineScript", () => {
       />
     );
   });
-
-  // test("updates scripts on mouse move", () => {
-  //   const { getByText } = render(
-  //     <TimelineScript
-  //       script={script}
-  //       setScripts={setScripts}
-  //       scripts={scripts}
-  //       zoomSize={zoomSize}
-  //       fps={fps}
-  //       activeScript={activeScript}
-  //       setActiveScript={setActiveScript}
-  //     />
-  //   );
-  //   const timelineScript = getByText("Script 1");
-
-  //   fireEvent.mouseDown(timelineScript, { clientX: 0, clientY: 0 });
-  //   fireEvent.mouseMove(window, { clientX: 100, clientY: 10 });
-
-  //   expect(setScripts).toHaveBeenCalledWith([
-  //     {
-  //       ...script,
-  //       start: 3.3333333333333335,
-  //       layer: 3,
-  //     },
-  //   ]);
-  // });
-
   test("resets isActive and cursor style on mouse up", () => {
     const { getByText } = render(
       <TimelineScript
@@ -80,5 +53,29 @@ describe("TimelineScript", () => {
 
     expect(timelineScript.classList.contains("active")).toBeFalsy();
     expect(document.body.style.cursor).toBe("auto");
+  });
+  test("change start of script on mouse move", () => {
+    const { getByTestId } = render(
+      <TimelineScript
+        script={script}
+        setScripts={setScripts}
+        scripts={scripts}
+        zoomSize={zoomSize}
+        fps={fps}
+        activeScript={activeScript}
+        setActiveScript={setActiveScript}
+      />
+    );
+    const timelineScript = getByTestId("resize-start");
+    fireEvent.mouseDown(timelineScript, { clientX: 0, clientY: 0 });
+    fireEvent.mouseMove(window, { clientX: 100, clientY: 0 });
+    fireEvent.mouseUp(window);
+    expect(setScripts).toHaveBeenCalledWith([
+      {
+        ...script,
+        start: 100 / zoomSize / fps,
+        length: 5 - 100 / zoomSize / fps,
+      },
+    ]);
   });
 });
