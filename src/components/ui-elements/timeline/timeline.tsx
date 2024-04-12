@@ -42,16 +42,26 @@ export default function Timeline({
             ))}
           </select>
           <div className="flex-1 flex">
-            {new Array(100).fill(0).map((_, i) => (
-              <TimeLineTime
-                key={i}
-                time={
-                  (i * convertRemToPx(5)) /*left px*/ /
-                  zoomSize /
-                  (projectFile?.settings?.fps || 60)
-                }
-              />
-            ))}
+            {new Array(
+              Math.round(
+                Math.max(
+                  ...(projectFile?.scenes?.[scene]?.scripts?.map(
+                    s => s.start + s.length
+                  ) || [0])
+                ) + 100
+              )
+            )
+              .fill(0)
+              .map((_, i) => (
+                <TimeLineTime
+                  key={i}
+                  time={
+                    (i * convertRemToPx(5)) /*left px*/ /
+                    zoomSize /
+                    (projectFile?.settings?.fps || 60)
+                  }
+                />
+              ))}
           </div>
           <nav className="sticky top-0 bg-gray-100 flex right-0 z-50">
             <button
