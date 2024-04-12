@@ -26,7 +26,7 @@ export default function TimelineScript({
     <div
       key={s.id}
       className={cn(
-        "absolute bg-blue-200 inset-y-0 z-10 cursor-move opacity-50 hover:opacity-80",
+        "absolute bg-blue-200 inset-y-0 z-10 cursor-move opacity-50 hover:opacity-80 flex",
         isActive && "opacity-100 hover:opacity-100"
       )}
       style={{
@@ -34,42 +34,48 @@ export default function TimelineScript({
         width: s.length * zoomSize * fps,
       }}
       onClick={() => setActiveScript?.(s.id)}
-      onMouseDown={e => {
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startFrame = s.start;
-        document.body.style.cursor = "move";
-        const onMouseMove = (e: MouseEvent) => {
-          setScripts(
-            scripts.map((script: Script) => {
-              if (script.id === s.id) {
-                return {
-                  ...script,
-                  start: Math.max(
-                    0,
-                    startFrame + (e.clientX - startX) / zoomSize / fps
-                  ),
-                  layer: Math.max(
-                    0,
-                    script.layer +
-                      Math.round((e.clientY - startY) / convertRemToPx(2.5))
-                  ),
-                };
-              }
-              return script;
-            })
-          );
-        };
-        const onMouseUp = () => {
-          document.body.style.cursor = "auto";
-          window.removeEventListener("mousemove", onMouseMove);
-          window.removeEventListener("mouseup", onMouseUp);
-        };
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-      }}
     >
-      {s?.name || s.extension}
+      <div className="w-0.5 hover:bg-blue-300 h-full hover:cursor-col-resize flex-none" />
+      <div
+        className="flex-1"
+        onMouseDown={e => {
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const startFrame = s.start;
+          document.body.style.cursor = "move";
+          const onMouseMove = (e: MouseEvent) => {
+            setScripts(
+              scripts.map((script: Script) => {
+                if (script.id === s.id) {
+                  return {
+                    ...script,
+                    start: Math.max(
+                      0,
+                      startFrame + (e.clientX - startX) / zoomSize / fps
+                    ),
+                    layer: Math.max(
+                      0,
+                      script.layer +
+                        Math.round((e.clientY - startY) / convertRemToPx(2.5))
+                    ),
+                  };
+                }
+                return script;
+              })
+            );
+          };
+          const onMouseUp = () => {
+            document.body.style.cursor = "auto";
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+          };
+          window.addEventListener("mousemove", onMouseMove);
+          window.addEventListener("mouseup", onMouseUp);
+        }}
+      >
+        {s?.name || s.extension}
+      </div>
+      <div className="w-0.5 hover:bg-blue-300 h-full hover:cursor-col-resize flex-none" />
     </div>
   );
 }
