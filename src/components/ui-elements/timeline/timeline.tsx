@@ -5,6 +5,7 @@ import { EnabledExtensions, Media } from "@/types/extensionInfo";
 import TimeLineMainContent from "./timeLineMainContent";
 import TimeLineBar from "./timeLineBar";
 import TimeLineTime from "./timeLineTime";
+import { convertRemToPx } from "@/lib/css/convertRemToPx";
 
 export default function Timeline({
   projectFile,
@@ -22,6 +23,7 @@ export default function Timeline({
   enabledExtensions: EnabledExtensions;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
+  console.log("zoomSize: ", zoomSize);
   const [scene, setScene] = useState(0);
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar" key={scene}>
@@ -43,8 +45,11 @@ export default function Timeline({
             {new Array(100).fill(0).map((_, i) => (
               <TimeLineTime
                 key={i}
-                zoomSize={zoomSize}
-                fps={projectFile?.settings?.fps || 60}
+                time={
+                  (i * convertRemToPx(5)) /*left px*/ /
+                  zoomSize /
+                  (projectFile?.settings?.fps || 60)
+                }
               />
             ))}
           </div>

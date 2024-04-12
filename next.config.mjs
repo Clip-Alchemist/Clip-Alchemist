@@ -9,6 +9,7 @@ const nextConfig = {
   publicRuntimeConfig: {
     basePath: isProd ? SUB_DIRECTORY : "",
   },
+  reactStrictMode: false,
 };
 
 export default nextConfig;
