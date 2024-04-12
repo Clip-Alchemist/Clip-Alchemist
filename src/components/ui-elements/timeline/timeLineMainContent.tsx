@@ -35,6 +35,7 @@ export default function TimeLineMainContent({
 }) {
   const [x, setX] = useState(0);
   const [selectedLayer, setSelectedLayer] = useState(0);
+  const s = scripts.find(s => s.id === activeScript);
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -75,6 +76,22 @@ export default function TimeLineMainContent({
         </>
       </ContextMenuTrigger>
       <ContextMenuContent>
+        {activeScript && (
+          <>
+            <ContextMenuItem
+              onClick={() => {
+                if (!s) return;
+                const { id, ...rest } = s;
+                navigator.clipboard.writeText(
+                  `https://clip-alchemist.github.io/Clip-Alchemist/#${JSON.stringify(rest)}`
+                );
+              }}
+            >
+              copy
+            </ContextMenuItem>
+          </>
+        )}
+
         <ContextMenuSub>
           <ContextMenuSubTrigger>Add</ContextMenuSubTrigger>
           <ContextMenuSubContent>
