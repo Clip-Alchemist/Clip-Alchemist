@@ -23,7 +23,6 @@ export default function Timeline({
   enabledExtensions: EnabledExtensions;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
-  console.log("zoomSize: ", zoomSize);
   const [scene, setScene] = useState(0);
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar" key={scene}>
