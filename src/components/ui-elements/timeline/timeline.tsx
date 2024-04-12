@@ -5,6 +5,7 @@ import { EnabledExtensions, Media } from "@/types/extensionInfo";
 import TimeLineMainContent from "./timeLineMainContent";
 import TimeLineBar from "./timeLineBar";
 import TimeLineTime from "./timeLineTime";
+import { convertRemToPx } from "@/lib/css/convertRemToPx";
 
 export default function Timeline({
   projectFile,
@@ -22,6 +23,7 @@ export default function Timeline({
   enabledExtensions: EnabledExtensions;
 }) {
   const [zoomSize, setZoomSize] = useState(2); //px per frame
+  console.log("zoomSize: ", zoomSize);
   const [scene, setScene] = useState(0);
   return (
     <div className="w-full h-full overflow-scroll hidden-scrollbar" key={scene}>
@@ -40,13 +42,26 @@ export default function Timeline({
             ))}
           </select>
           <div className="flex-1 flex">
-            {new Array(100).fill(0).map((_, i) => (
-              <TimeLineTime
-                key={i}
-                zoomSize={zoomSize}
-                fps={projectFile?.settings?.fps || 60}
-              />
-            ))}
+            {new Array(
+              Math.round(
+                Math.max(
+                  ...(projectFile?.scenes?.[scene]?.scripts?.map(
+                    s => s.start + s.length
+                  ) || [0])
+                ) + 100
+              )
+            )
+              .fill(0)
+              .map((_, i) => (
+                <TimeLineTime
+                  key={i}
+                  time={
+                    (i * convertRemToPx(5)) /*left px*/ /
+                    zoomSize /
+                    (projectFile?.settings?.fps || 60)
+                  }
+                />
+              ))}
           </div>
           <nav className="sticky top-0 bg-gray-100 flex right-0 z-50">
             <button
