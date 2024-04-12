@@ -36,6 +36,25 @@ export default function TimeLineMainContent({
   const [x, setX] = useState(0);
   const [selectedLayer, setSelectedLayer] = useState(0);
   const s = scripts.find(s => s.id === activeScript);
+  async function paste() {
+    const text = await navigator.clipboard.readText();
+    console.log(text);
+    if (text.startsWith("https://clip-alchemist.github.io/Clip-Alchemist/#")) {
+      const json = JSON.parse(
+        text.slice("https://clip-alchemist.github.io/Clip-Alchemist/#".length)
+      );
+      setScripts([
+        ...scripts,
+        {
+          ...json,
+          id: createUUID(),
+          start: x / zoomSize / fps,
+          layer: selectedLayer,
+          scene: 0,
+        },
+      ]);
+    }
+  }
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -91,7 +110,7 @@ export default function TimeLineMainContent({
             </ContextMenuItem>
           </>
         )}
-
+        <ContextMenuItem onClick={paste}>Paste</ContextMenuItem>
         <ContextMenuSub>
           <ContextMenuSubTrigger>Add</ContextMenuSubTrigger>
           <ContextMenuSubContent>
@@ -103,7 +122,7 @@ export default function TimeLineMainContent({
                     setScripts([
                       ...scripts,
                       {
-                        id: createUUID() as UUID,
+                        id: createUUID(),
                         name: key,
                         extension: "clip-alchemist.text", //debug
                         start: x / zoomSize / fps,
