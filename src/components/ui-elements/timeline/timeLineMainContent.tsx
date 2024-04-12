@@ -13,7 +13,6 @@ import {
 } from "../../ui/context-menu";
 import { Media } from "@/types/extensionInfo";
 import { createUUID } from "@/lib/uuid";
-import { UUID } from "crypto";
 import TimelineScript from "./timelineScript";
 
 export default function TimeLineMainContent({
@@ -36,13 +35,16 @@ export default function TimeLineMainContent({
   const [x, setX] = useState(0);
   const [selectedLayer, setSelectedLayer] = useState(0);
   const s = scripts.find(s => s.id === activeScript);
+  const COPY_URL = "https://clip-alchemist.github.io/Clip-Alchemist/#";
+  function copy() {
+    if (!s) return;
+    const { id, ...rest } = s;
+    navigator.clipboard.writeText(`${COPY_URL}${JSON.stringify(rest)}`);
+  }
   async function paste() {
     const text = await navigator.clipboard.readText();
-    console.log(text);
-    if (text.startsWith("https://clip-alchemist.github.io/Clip-Alchemist/#")) {
-      const json = JSON.parse(
-        text.slice("https://clip-alchemist.github.io/Clip-Alchemist/#".length)
-      );
+    if (text.startsWith(COPY_URL)) {
+      const json = JSON.parse(text.slice(COPY_URL.length));
       setScripts([
         ...scripts,
         {
@@ -50,10 +52,14 @@ export default function TimeLineMainContent({
           id: createUUID(),
           start: x / zoomSize / fps,
           layer: selectedLayer,
-          scene: 0,
         },
       ]);
     }
+  }
+  function remove() {
+    if (!activeScript) return;
+    setScripts(scripts.filter(s => s.id !== activeScript));
+    setActiveScript(undefined);
   }
   return (
     <ContextMenu>
@@ -95,21 +101,7 @@ export default function TimeLineMainContent({
         </>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        {activeScript && (
-          <>
-            <ContextMenuItem
-              onClick={() => {
-                if (!s) return;
-                const { id, ...rest } = s;
-                navigator.clipboard.writeText(
-                  `https://clip-alchemist.github.io/Clip-Alchemist/#${JSON.stringify(rest)}`
-                );
-              }}
-            >
-              copy
-            </ContextMenuItem>
-          </>
-        )}
+        {activeScript && <ContextMenuItem onClick={copy}>copy</ContextMenuItem>}
         <ContextMenuItem onClick={paste}>Paste</ContextMenuItem>
         <ContextMenuSub>
           <ContextMenuSubTrigger>Add</ContextMenuSubTrigger>
@@ -141,14 +133,7 @@ export default function TimeLineMainContent({
           </ContextMenuSubContent>
         </ContextMenuSub>
         {activeScript && (
-          <ContextMenuItem
-            onClick={() => {
-              setScripts(scripts.filter(s => s.id !== activeScript));
-              setActiveScript(undefined);
-            }}
-          >
-            Remove
-          </ContextMenuItem>
+          <ContextMenuItem onClick={remove}>Remove</ContextMenuItem>
         )}
       </ContextMenuContent>
     </ContextMenu>
