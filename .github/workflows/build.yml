@@ -27,11 +27,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build
-        run: pnpm next build
+        run: pnpm build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./out
+          path: ./dist
 
   # Deployment job
   deploy:

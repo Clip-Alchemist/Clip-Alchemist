@@ -1,4 +1,4 @@
-name: "Nextjs build test"
+name: "build test"
 on: [push]
 jobs:
   build_test:
@@ -14,4 +14,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build
-        run: pnpm next build
+        run: pnpm build
