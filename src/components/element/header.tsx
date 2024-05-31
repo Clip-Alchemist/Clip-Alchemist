@@ -43,7 +43,7 @@ export default function Header() {
     },
   ];
   return (
-    <header>
+    <header className="flex-none">
       <Menubar className="rounded-none border-0">
         {menubar.map((menu) => (
           <MenubarMenu>
