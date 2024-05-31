@@ -9,9 +9,19 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import React from "react";
 export default function Header() {
-  const menubar = [
+  type Content = {
+    label: string;
+    shortcut?: string;
+    content?: Array<Content>;
+    onClick?: () => void;
+  };
+  type Menu = {
+    label: string;
+    content: Array<Content>;
+  };
+
+  const menubar: Menu[] = [
     {
       label: "File",
       content: [
@@ -31,7 +41,13 @@ export default function Header() {
     },
     {
       label: "Settings",
-      content: [{ label: "Manage extensions" }],
+      content: [
+        {
+          label: "Manage extensions",
+          onClick: () =>
+            window.dispatchEvent(new CustomEvent("open-extensions-manager")),
+        },
+      ],
     },
     {
       label: "Help",
@@ -46,14 +62,14 @@ export default function Header() {
     <header className="flex-none">
       <Menubar className="rounded-none border-0">
         {menubar.map((menu) => (
-          <MenubarMenu>
+          <MenubarMenu key={menu.label}>
             <MenubarTrigger>{menu.label}</MenubarTrigger>
             <MenubarContent>
               {menu.content.map((item) =>
                 item.content ? (
                   <Sub key={item.label} menu={item} />
                 ) : (
-                  <MenubarItem key={item.label}>
+                  <MenubarItem key={item.label} onClick={item.onClick}>
                     {item.label}
                     {item?.shortcut && (
                       <MenubarShortcut>{item.shortcut}</MenubarShortcut>
