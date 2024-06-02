@@ -27,7 +27,7 @@ export default function Main() {
   return (
     <main className="flex-1">
       <ResizablePanelGroup direction="vertical">
-        <ResizablePanel defaultSize={75}>
+        <ResizablePanel defaultSize={60}>
           <ResizablePanelGroup direction="horizontal">
             <ResizablePanel defaultSize={25}>
               {/* <Extensions/> */}
@@ -41,7 +41,7 @@ export default function Main() {
           </ResizablePanelGroup>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={25}>{/* <Timeline/> */}</ResizablePanel>
+        <ResizablePanel defaultSize={40}>{/* <Timeline/> */}</ResizablePanel>
       </ResizablePanelGroup>
     </main>
   );
