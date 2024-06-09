@@ -1,3 +1,4 @@
+import TileLine from "@/components/element/timeline/index";
 import React from "react";
 import {
   ResizableHandle,
@@ -41,7 +42,9 @@ export default function Main() {
           </ResizablePanelGroup>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={40}>{/* <Timeline/> */}</ResizablePanel>
+        <ResizablePanel defaultSize={40}>
+          <TileLine />
+        </ResizablePanel>
       </ResizablePanelGroup>
     </main>
   );
