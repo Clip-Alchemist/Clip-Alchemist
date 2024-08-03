@@ -1,6 +1,5 @@
 import { UUID } from "crypto";
 
-
 export type File = {
   metadata: {
     title: string;
@@ -25,8 +24,8 @@ export type File = {
 type Script = {
   id: UUID; //The ID of the script block.
   fileId?: UUID; //If using assets, the asset ID.
-  start: number; //in seconds
-  length: number; //in seconds
+  start: number; //in flames
+  length: number; //in flames
   layer: number; //first layer is 0
   name?: string; //Display name on timeline Entered by instructions from the extension
   "position.x": number;
