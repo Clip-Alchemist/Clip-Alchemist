@@ -4,6 +4,8 @@
     "source.organizeImports": "explicit"
   },
   "cSpell.words": [
+    "clsx",
+    "comlink",
     "uuidv"
   ]
 }
