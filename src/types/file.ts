@@ -11,18 +11,19 @@ export type File = {
     extensions?: string[]; // extensions id list
   };
   assets?: {
-    id: UUID;
-    path: string;
-    type: string;
-    name: string;
-  }[];
+    [key: UUID]: {
+      id: UUID;
+      path: string;
+      type: string;
+      name: string;
+    };
+  };
   // scene 0 = root
   scenes?: {
-    scripts: Script[];
+    scripts: { [key: UUID]: Script };
   }[];
 };
-type Script = {
-  id: UUID; //The ID of the script block.
+export type Script = {
   fileId?: UUID; //If using assets, the asset ID.
   start: number; //in flames
   length: number; //in flames
@@ -32,4 +33,15 @@ type Script = {
   "position.y": number;
   extension: string; //extension id
   [key: `${string}.${string}`]: any; //extensionName.option
+};
+
+export const DEFAULT_FILE: File = {
+  metadata: {
+    title: "Untitled",
+    fps: 60,
+    size: {
+      width: 1920,
+      height: 1080,
+    },
+  },
 };

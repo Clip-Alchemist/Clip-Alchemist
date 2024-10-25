@@ -1,234 +1,344 @@
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
-import { File } from "@/types/file";
-import {
-  DndContext,
-  DragOverlay,
-  useDraggable,
-  useDroppable,
-} from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+"use client";
+import { File, Script } from "@/types/file";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import colorPallet from "tailwindcss/colors";
+import { FileContext } from "../main";
+import { renderDropdown } from "./renderDropdown";
+import { renderFrameBar } from "./renderFrameBar";
+import { renderLayoutNumbers } from "./renderLayoutNumbers";
+import { renderMainContent } from "./renderMainContent";
+import { renderTimeLine } from "./renderTimeLine";
+import { useResize } from "./useResize";
 
-interface Item {
-  id: string;
-  type: "image" | "video";
-  src: string;
-  layer: number;
-  startTime: number; // seconds
-  duration: number; // seconds
-}
+export const headerHeight = 30;
+export const layerWidth = 70;
+export const layerHeight = 40;
 
-const items: Item[] = [
-  {
-    id: "1",
-    type: "image",
-    src: "/image1.jpg",
-    layer: 1,
-    startTime: 10,
-    duration: 5,
+export const spacing = [2, 4, 8, 12, 16, 20, 24, 28]; // tailwindcssのpadding-nに相当(0はp-.5に相当)
+export const colors = {
+  stripes: [colorPallet.white, colorPallet.slate["200"]],
+  content: {
+    background: colorPallet.blue,
+    text: colorPallet.white,
   },
-  {
-    id: "2",
-    type: "video",
-    src: "/video1.mp4",
-    layer: 3,
-    startTime: 20,
-    duration: 10,
-  },
-  // ... more items
-];
-export default function TileLine({ timelineData }: { timelineData?: File }) {
-  const [SliderValue, setSliderValue] = useState([50]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
-  };
+  default: "700",
+  selected: "400",
+};
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
-    if (over) {
-      const activeIndex = items.findIndex((item) => item.id === active.id);
-      const overIndex = items.findIndex((item) => item.id === over.id);
+export default function Canvas({
+  setFile,
+}: {
+  setFile: React.Dispatch<React.SetStateAction<File>>;
+}) {
+  const file = useContext(FileContext);
+  const FPS = file.metadata.fps;
+  const scripts: { [key: string]: Script } = file?.scenes?.[0].scripts || {};
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const heightWidth = useResize();
+  const [scrollX, setScrollX] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [zoom, setZoom] = useState(2); // pixels per frame
+  const [selected, setSelected] = useState<string[]>([]);
+  const [frame, setFrame] = useState(60); //debug
+  const [dragging, setDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState([0, 0]);
+  const [dragScriptId, setDragScriptId] = useState<string | null>(null);
+  const [selectionBox, setSelectionBox] = useState<number[] | null>(null); // 選択範囲の座標
+  const [scene, setScene] = useState(0); //現在編集中のシーン
 
-      if (activeIndex !== overIndex) {
-        const updatedItems = [...items];
-        const [removed] = updatedItems.splice(activeIndex, 1);
-        updatedItems.splice(overIndex, 0, removed);
+  function setScripts(newScripts: { [key: string]: TimelineScript }) {
+    setFile((prev) => ({
+      ...prev,
+      scenes: prev.scenes?.map((s, i) =>
+        i === scene
+          ? (() => {
+              const { color, ...rest } = newScripts;
+              return { scripts: rest };
+            })()
+          : s,
+      ),
+    }));
+  }
 
-        // Update item's layer and startTime based on the drop target
-        const newLayer = parseInt(over.id.split("-")[1]);
-        const newStartTime = Math.floor(
-          (event.over.rect.left - event.over.offset.x) / 40,
-        ); // Calculate startTime based on the drop position
-        updatedItems[overIndex].layer = newLayer;
-        updatedItems[overIndex].startTime = newStartTime;
+  useEffect(() => {
+    if (!canvasRef.current) {
+      throw new Error("canvas要素の取得に失敗しました");
+    }
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("context取得失敗");
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
 
-        // Update items state (replace with your state management solution)
-        // ...
+    // スクロールを適用
+    ctx.translate(-scrollX, -scrollY);
+
+    renderMainContent({
+      ctx,
+      heightWidth,
+      scrollX,
+      scrollY,
+      zoom,
+      scripts,
+      selected,
+    });
+    renderLayoutNumbers({ ctx, heightWidth, scrollX, scrollY });
+    renderTimeLine({ ctx, heightWidth, scrollX, scrollY, zoom, FPS });
+    renderFrameBar({ ctx, heightWidth, scrollY, zoom, frame });
+    renderDropdown({ ctx, scrollX, scrollY });
+
+    // 選択範囲を描画
+    if (selectionBox) {
+      const [startX, startY, width, height] = selectionBox;
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2; // 選択範囲の線の太さを調整
+      ctx.strokeRect(startX, startY, width, height);
+    }
+
+    ctx.restore();
+  }, [
+    heightWidth,
+    scrollX,
+    scrollY,
+    scripts,
+    selected,
+    frame,
+    zoom,
+    dragging,
+    selectionBox,
+    FPS,
+  ]);
+
+  const handleMouseDown = (e: any) => {
+    const [canvasX, canvasY] = [
+      e.nativeEvent.offsetX + scrollX,
+      e.nativeEvent.offsetY + scrollY,
+    ];
+    let clickedScriptId = null;
+
+    // Check if a script is clicked
+    for (const [id, script] of Object.entries(scripts)) {
+      const origin = [
+        layerWidth + script.start * zoom,
+        headerHeight + layerHeight * script.layer,
+      ];
+      if (
+        canvasX >= origin[0] &&
+        canvasX <= origin[0] + script.length * zoom &&
+        canvasY >= origin[1] + spacing[1] &&
+        canvasY <= origin[1] + layerHeight - spacing[1]
+      ) {
+        clickedScriptId = id;
+        break; // Found a clicked script, stop searching
       }
     }
-    setActiveId(null);
+
+    if (clickedScriptId) {
+      setDragging(true);
+      setDragOffset([
+        canvasX - (layerWidth + scripts[clickedScriptId].start * zoom),
+        canvasY -
+          (headerHeight +
+            layerHeight * scripts[clickedScriptId].layer +
+            spacing[1]),
+      ]);
+      setDragScriptId(clickedScriptId);
+
+      // Ctrlキーが押されている場合は複数選択
+      if (e.ctrlKey) {
+        if (selected.includes(clickedScriptId)) {
+          setSelected(selected.filter((id) => id !== clickedScriptId));
+        } else {
+          setSelected([...selected, clickedScriptId]);
+        }
+      } else {
+        // Ctrlキーが押されていない場合は単一選択
+        if (!selected.includes(clickedScriptId)) {
+          setSelected([clickedScriptId]);
+        }
+      }
+    } else {
+      // 選択範囲の開始
+      setDragging(true);
+      setSelectionBox([canvasX, canvasY, 0, 0]);
+
+      // 選択範囲外をクリックした場合は選択解除
+      setSelected([]);
+    }
   };
+
+  const handleMouseMove = (e: any) => {
+    const [canvasX, canvasY] = [
+      e.nativeEvent.offsetX + scrollX,
+      e.nativeEvent.offsetY + scrollY,
+    ];
+
+    if (dragging) {
+      if (dragScriptId) {
+        const newScripts = { ...scripts };
+        const currentScript = newScripts[dragScriptId];
+
+        let newStart = Math.max(
+          0,
+          (canvasX - dragOffset[0] - layerWidth) / zoom,
+        );
+        let newLayer = Math.max(
+          0,
+          Math.floor((canvasY - dragOffset[1] - headerHeight) / layerHeight),
+        );
+
+        // 当たり判定とスナップ
+        let closestCollision = null;
+        let collisionSide = null;
+
+        for (const [id, script] of Object.entries(newScripts)) {
+          if (id !== dragScriptId && newLayer === script.layer) {
+            if (
+              newStart < script.start + script.length &&
+              newStart + currentScript.length > script.start
+            ) {
+              if (
+                closestCollision === null ||
+                Math.abs(script.start - (newStart + currentScript.length)) <
+                  Math.abs(closestCollision.distance)
+              ) {
+                closestCollision = {
+                  id: id,
+                  distance: script.start - (newStart + currentScript.length),
+                };
+                collisionSide = "right";
+              }
+              if (
+                closestCollision === null ||
+                Math.abs(script.start + script.length - newStart) <
+                  Math.abs(closestCollision.distance)
+              ) {
+                closestCollision = {
+                  id: id,
+                  distance: script.start + script.length - newStart,
+                };
+                collisionSide = "left";
+              }
+            }
+          }
+        }
+
+        if (closestCollision) {
+          const targetScript = newScripts[closestCollision.id];
+          if (collisionSide === "left") {
+            newStart = targetScript.start + targetScript.length;
+          } else if (collisionSide === "right") {
+            newStart = targetScript.start - currentScript.length;
+          }
+        }
+
+        currentScript.start = newStart;
+        currentScript.layer = newLayer;
+
+        // 複数選択時の処理
+        if (selected.length > 1) {
+          const deltaStart = newStart - scripts[dragScriptId].start;
+          const deltaLayer = newLayer - scripts[dragScriptId].layer;
+          selected.forEach((id) => {
+            if (id !== dragScriptId && newScripts[id]) {
+              newScripts[id].start += deltaStart;
+              newScripts[id].layer += deltaLayer;
+            }
+          });
+        }
+
+        setScripts(newScripts);
+      } else if (selectionBox) {
+        // 選択範囲の更新と選択状態の更新を同時に行う
+        const [startX, startY] = selectionBox;
+        const width = canvasX - startX;
+        const height = canvasY - startY;
+        setSelectionBox([startX, startY, width, height]);
+
+        // マウス移動中に選択範囲に含まれるスクリプトを選択
+        const selectedScripts = [];
+        for (const [id, script] of Object.entries(scripts)) {
+          const origin = [
+            layerWidth + script.start * zoom,
+            headerHeight + layerHeight * script.layer,
+          ];
+          const scriptRight = origin[0] + script.length * zoom;
+          const scriptBottom = origin[1] + layerHeight;
+
+          const selBoxRight = startX + width;
+          const selBoxBottom = startY + height;
+
+          if (
+            ((startX < scriptRight && selBoxRight > origin[0]) ||
+              (startX > scriptRight && selBoxRight < origin[0])) &&
+            ((startY < scriptBottom && selBoxBottom > origin[1]) ||
+              (startY > scriptBottom && selBoxBottom < origin[1]))
+          ) {
+            selectedScripts.push(id);
+          }
+        }
+        setSelected(selectedScripts);
+      }
+    }
+  };
+
+  const handleMouseUp = (e: any) => {
+    setDragging(false);
+    setDragScriptId(null);
+    setDragOffset([0, 0]);
+
+    if (selectionBox) {
+      const [startX, startY, width, height] = selectionBox;
+      const selectedScripts = [];
+
+      for (const [id, script] of Object.entries(scripts)) {
+        const origin = [
+          layerWidth + script.start * zoom,
+          headerHeight + layerHeight * script.layer,
+        ];
+        const scriptRight = origin[0] + script.length * zoom;
+        const scriptBottom = origin[1] + layerHeight;
+
+        const selBoxRight = startX + width;
+        const selBoxBottom = startY + height;
+
+        // Check for overlap between selection box and script, handle negative width/height
+        if (
+          ((startX < scriptRight && selBoxRight > origin[0]) ||
+            (startX > scriptRight && selBoxRight < origin[0])) &&
+          ((startY < scriptBottom && selBoxBottom > origin[1]) ||
+            (startY > scriptBottom && selBoxBottom < origin[1]))
+        ) {
+          selectedScripts.push(id);
+        }
+      }
+      setSelected(selectedScripts);
+      setSelectionBox(null);
+    }
+  };
+
+  const handleWheel = (e: any) => {
+    e.preventDefault();
+    setScrollX(Math.max(0, scrollX + e.deltaX));
+    setScrollY(Math.max(0, scrollY + e.deltaY));
+  };
+
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="hidden-scrollbar h-full w-full overflow-scroll">
-        <div className="w-max">
-          <div className="sticky inset-x-0 top-0 z-10 flex border-b bg-gray-50 py-2">
-            <div className="sticky left-0 z-20 flex w-24 flex-none flex-col gap-1 bg-gray-50 px-2">
-              <Select defaultValue="0">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value={"0"}>Root</SelectItem>
-                    <SelectItem value={"1"}>Scene1</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <div
-                className="h-6 cursor-pointer rounded bg-blue-900"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  setSliderValue([Math.round((x / rect.width) * 100)]);
-                }}
-              >
-                <div
-                  className="h-full rounded-l bg-blue-400"
-                  style={{ width: `${SliderValue}%` }}
-                ></div>
-                <Slider
-                  defaultValue={[50]}
-                  max={100}
-                  value={SliderValue}
-                  onValueChange={(value) => {
-                    setSliderValue(value);
-                  }}
-                  className="absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
-                />
-              </div>
-            </div>
-            <div className="flex flex-1">
-              {new Array(100).fill(0).map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "relative flex w-40 flex-none text-center",
-                    "before:absolute before:bottom-0 before:block before:h-1/2 before:w-px before:translate-x-[-0.5px] before:bg-black",
-                  )}
-                >
-                  <p>
-                    {("00" + Math.floor(i / 3600)).slice(-2)}:
-                    {("00" + Math.floor(i / 60)).slice(-2)}:
-                    {("00" + (i % 60)).slice(-2)}
-                  </p>
-                  {new Array(9).fill(0).map((_, index) => (
-                    <div
-                      className={cn(
-                        "absolute bottom-0 h-1/4 w-px bg-black",
-                        `left-${(index + 1) * 4}`,
-                        "translate-x-[-0.5px]",
-                      )}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="left-12 left-16 left-20 left-24 left-28 left-32 left-36 left-4 left-8 hidden" />
-          {/* The above code is required for compiling tailwind css */}
-          <div>
-            {new Array(25).fill(0).map((_, i) => (
-              <div key={i} className="flex odd:bg-gray-100">
-                <button className="sticky left-0 h-full w-24 flex-none py-2 text-center">
-                  Layer {i + 1}
-                </button>
-                <div className="relative flex-1">
-                  <Layer id={`layer-${i + 1}`} />
-                  {items
-                    .filter((item) => item.layer === i + 1)
-                    .map((item) => (
-                      <ItemComponent
-                        key={item.id}
-                        item={item}
-                        timelineScale={40} // pixels per second
-                      />
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <DragOverlay>
-            {activeId ? (
-              <ItemComponent
-                item={items.find((item) => item.id === activeId)!}
-                timelineScale={40}
-                isDragging={true}
-              />
-            ) : null}
-          </DragOverlay>
-        </div>
-      </div>
-    </DndContext>
+    <canvas
+      ref={canvasRef}
+      onWheel={handleWheel}
+      height={heightWidth[0]}
+      width={heightWidth[1]}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      style={{ cursor: dragging ? "grabbing" : "grab" }}
+    />
   );
 }
 
-function Layer({ id }: { id: string }) {
-  const { setNodeRef } = useDroppable({
-    id,
-  });
-
-  return <div ref={setNodeRef} className="h-8" />;
-}
-
-function ItemComponent({
-  item,
-  timelineScale,
-  isDragging = false,
-}: {
-  item: Item;
-  timelineScale: number;
-  isDragging?: boolean;
-}) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: item.id,
-  });
-
-  const style = {
-    transform: CSS.Translate.toString(
-      transform || { x: 0, y: 0, scaleX: 1, scaleY: 1 },
-    ), // デフォルト値を設定
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 100 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className={`absolute h-6 cursor-move bg-blue-500`}
-      style={{
-        ...style,
-        left: item.startTime * timelineScale,
-        width: item.duration * timelineScale,
-      }}
-    >
-      {item.type === "image" ? (
-        <img src={item.src} alt="" className="h-full w-full object-cover" />
-      ) : (
-        <video src={item.src} className="h-full w-full object-cover" />
-      )}
-    </div>
-  );
-}
+export type TimelineScript = Script & {
+  color?: { background?: string; text?: string };
+};

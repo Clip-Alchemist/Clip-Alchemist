@@ -3,9 +3,5 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
   },
-  "cSpell.words": [
-    "clsx",
-    "comlink",
-    "uuidv"
-  ]
+  "cSpell.words": ["clsx", "comlink", "tailwindcss", "uuidv"]
 }
