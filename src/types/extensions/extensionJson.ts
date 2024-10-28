@@ -5,6 +5,11 @@ export type ExtensionManifest = {
   version: Version;
   type: ExtensionType | ExtensionType[];
   main: string;
+  scripts?: {
+    title: string;
+    event: string;
+    script: string;
+  }[];
 };
 type Version = `${number}.${number}.${number}`;
 type ExtensionType =

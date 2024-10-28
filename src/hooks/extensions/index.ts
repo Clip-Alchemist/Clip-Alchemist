@@ -1,5 +1,6 @@
 import { ExtensionManifest } from "@/types/extensions/extensionJson";
 import { useEffect, useState } from "react";
+import { requestToWorker } from "./requestToWorker";
 export function useExtensions(extensions: Array<string>) {
   const [extensionsWorkers, setExtensionsWorkers] = useState<
     {
@@ -23,26 +24,23 @@ export function useExtensions(extensions: Array<string>) {
         manifests.map(async (manifest) => {
           const script = manifest?.main;
           if (!script) return { manifest };
-
           const code = await fetch(new URL(script, manifest.url)).then((r) =>
             r.text(),
           );
-
           const blob = new Blob([initCode, code], {
             type: "text/javascript",
           });
           const workerURL = URL.createObjectURL(blob);
           const worker = new Worker(workerURL);
-          // logの設定
           worker.addEventListener("message", (e) => {
             if (e.data.type === "log") {
-              console.log(`[${manifest.id}]`, ...e.data.args);
+              console.log(`[${manifest.id}]`, e.data?.message);
             }
           });
+          await requestToWorker(worker, "init");
           return { worker, manifest };
         }),
       );
-
       setExtensionsWorkers(extensionsWorkers);
     })();
     // delete worker
