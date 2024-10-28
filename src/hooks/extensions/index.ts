@@ -1,9 +1,15 @@
-import { useEffect } from "react";
-import * as Comlink from "comlink";
+import { ExtensionManifest } from "@/types/extensions/extensionJson";
+import { useEffect, useState } from "react";
 export function useExtensions(extensions: Array<string>) {
+  const [extensionsWorkers, setExtensionsWorkers] = useState<
+    {
+      worker?: Worker;
+      manifest: ExtensionManifest & { url: URL };
+    }[]
+  >([]);
   useEffect(() => {
     (async () => {
-      const manifests = await Promise.all(
+      const manifests: (ExtensionManifest & { url: URL })[] = await Promise.all(
         extensions.map(async (url) => {
           const response = await fetch(url);
           const manifest = await response.json();
@@ -13,10 +19,10 @@ export function useExtensions(extensions: Array<string>) {
       const initCode = await fetch(
         new URL("extensions/init.js", location.origin),
       ).then((r) => r.text());
-      await Promise.all(
+      const extensionsWorkers = await Promise.all(
         manifests.map(async (manifest) => {
           const script = manifest?.main;
-          if (!script) return;
+          if (!script) return { manifest };
 
           const code = await fetch(new URL(script, manifest.url)).then((r) =>
             r.text(),
@@ -27,59 +33,25 @@ export function useExtensions(extensions: Array<string>) {
           });
           const workerURL = URL.createObjectURL(blob);
           const worker = new Worker(workerURL);
-
-          // ワーカーを終了させるためのクリーンアップ処理
-          return () => {
-            worker.terminate();
-            URL.revokeObjectURL(workerURL);
-          };
+          // logの設定
+          worker.addEventListener("message", (e) => {
+            if (e.data.type === "log") {
+              console.log(`[${manifest.id}]`, ...e.data.args);
+            }
+          });
+          return { worker, manifest };
         }),
       );
+
+      setExtensionsWorkers(extensionsWorkers);
     })();
+    // delete worker
+    return () => {
+      extensionsWorkers.forEach(({ worker }) => {
+        worker?.terminate();
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  return extensionsWorkers;
 }
-
-// 無効にするAPIのリスト
-const disabledAPIs = ["console", "localStorage" /* 他にも追加可能 */];
-function createProxy(obj: any) {
-  return new Proxy(obj, {
-    get(target, prop) {
-      if (typeof prop === "string" && disabledAPIs.includes(prop)) {
-        // APIを無効にする (ここでは空の関数を返す)
-        return (...args: any[]) => {};
-      } else if (
-        typeof prop === "string" &&
-        prop.startsWith("clipalchemist.")
-      ) {
-        // ... (clipalchemist.xxx の処理は変更なし)
-      }
-      return target[prop]; // 他のプロパティはそのまま返す
-    },
-  });
-}
-const clipalchemist = {
-  _listeners: {} as { [key: string]: Function[] },
-
-  addEventListener: (eventName: string, listener: Function) => {
-    /* ... */
-  },
-  removeEventListener: (eventName: string, listener: Function) => {
-    /* ... */
-  },
-  dispatchEvent: (eventName: string, ...args: any[]) => {
-    /* ... */
-  },
-
-  init: async (proxy: any) => {
-    // Initialization logic here
-  },
-  log: (message: string) => {
-    /* ... */
-  },
-  message: (message: string) => {
-    /* ... */
-  },
-
-  // ... 他のAPI...
-} as const;

@@ -1,10 +1,10 @@
-export type ExtensionJson = {
+export type ExtensionManifest = {
   name: string;
   id: string;
   description: string;
   version: Version;
   type: ExtensionType | ExtensionType[];
-  scripts?: string[];
+  main: string;
 };
 type Version = `${number}.${number}.${number}`;
 type ExtensionType =
