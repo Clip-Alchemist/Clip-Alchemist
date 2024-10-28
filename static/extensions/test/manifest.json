@@ -1,0 +1,9 @@
+{
+  "name": "test",
+  "id": "clip-alchemist.test",
+  "version": "1.0.0",
+  "description": "My awesome extension",
+  "type": "animation",
+  "icon": "icon.png",
+  "main": "index.mjs"
+}
