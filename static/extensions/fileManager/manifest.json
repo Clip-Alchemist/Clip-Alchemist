@@ -1,0 +1,14 @@
+{
+  "name": "fileManager",
+  "id": "clipalchemist.fileManager",
+  "description": "default File Manager",
+  "version": "1.0.0",
+  "type": "FileManager",
+  "main": "index.js",
+  "scripts": [
+    {
+      "event": "open-folder",
+      "script": "loadFolder"
+    }
+  ]
+}

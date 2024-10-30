@@ -9,18 +9,17 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+type Content = {
+  label: string;
+  shortcut?: string;
+  content?: Array<Content>;
+  onClick?: () => void;
+};
+type Menu = {
+  label: string;
+  content: Array<Content>;
+};
 export default function Header() {
-  type Content = {
-    label: string;
-    shortcut?: string;
-    content?: Array<Content>;
-    onClick?: () => void;
-  };
-  type Menu = {
-    label: string;
-    content: Array<Content>;
-  };
-
   const menubar: Menu[] = [
     {
       label: "File",
@@ -28,7 +27,18 @@ export default function Header() {
         { label: "New" },
         {
           label: "Open",
-          content: [{ label: "Open file" }, { label: "Open folder" }],
+          content: [
+            {
+              label: "Open file",
+              onClick: () => window.dispatchEvent(new CustomEvent("open-file")),
+            },
+            {
+              label: "Open folder",
+              // Todo: これが機能していないs
+              onClick: () =>
+                window.dispatchEvent(new CustomEvent("open-folder")),
+            },
+          ],
         },
         { label: "Save", shortcut: "Ctrl+S" },
         { label: "Save As", shortcut: "Ctrl+Shift+S" },
@@ -84,16 +94,18 @@ export default function Header() {
     </header>
   );
 }
-function Sub({ menu }: { menu: any }) {
+function Sub({ menu }: { menu: Content }) {
   return (
     <MenubarSub>
       <MenubarSubTrigger>{menu.label}</MenubarSubTrigger>
       <MenubarSubContent>
-        {menu.content.map((item: any) =>
+        {menu.content?.map((item: any) =>
           item.content ? (
             <Sub key={item.label} menu={item} />
           ) : (
-            <MenubarItem key={item.label}>{item.label}</MenubarItem>
+            <MenubarItem key={item.label} onClick={item?.onClick}>
+              {item.label}
+            </MenubarItem>
           ),
         )}
       </MenubarSubContent>

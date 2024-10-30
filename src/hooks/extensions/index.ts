@@ -37,6 +37,12 @@ export function useExtensions(extensions: Array<string>) {
               console.log(`[${manifest.id}]`, e.data?.message);
             }
           });
+          manifest?.scripts &&
+            manifest?.scripts?.forEach(({ event, script }) => {
+              window.addEventListener(event, (e) => {
+                requestToWorker(worker, script);
+              });
+            });
           await requestToWorker(worker, "init");
           return { worker, manifest };
         }),

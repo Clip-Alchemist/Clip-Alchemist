@@ -16,6 +16,7 @@ type ExtensionType =
   | "renderer"
   | "theme"
   | "settings"
+  | "FileManager"
   | "export"
   | "import"
   | "animation"
