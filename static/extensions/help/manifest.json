@@ -1,0 +1,17 @@
+{
+  "name": "help",
+  "id": "clipalchemist.help",
+  "version": "1.0.0",
+  "type": "another",
+  "main": "index.js",
+  "scripts": [
+    {
+      "event": "open-about",
+      "script": "openAbout"
+    },
+    {
+      "event": "open-document",
+      "script": "openDocument"
+    }
+  ]
+}

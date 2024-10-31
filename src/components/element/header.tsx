@@ -62,7 +62,10 @@ export default function Header() {
     {
       label: "Help",
       content: [
-        { label: "About" },
+        {
+          label: "About",
+          onClick: () => window.dispatchEvent(new CustomEvent("open-about")),
+        },
         { label: "Documentation", shortcut: "F1" },
         { label: "Version Info" },
       ],

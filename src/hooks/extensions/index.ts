@@ -36,6 +36,10 @@ export function useExtensions(extensions: Array<string>) {
             if (e.data.type === "log") {
               console.log(`[${manifest.id}]`, e.data?.message);
             }
+            if (e.data.type === "open") {
+              console.debug(`[${manifest.id}]`, "open", e.data.url);
+              window.open(e.data.url);
+            }
           });
           manifest?.scripts &&
             manifest?.scripts?.forEach(({ event, script }) => {

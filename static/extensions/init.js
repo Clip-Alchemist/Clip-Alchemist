@@ -13,6 +13,9 @@ self.clipalchemist = new Proxy(
         postMessage({ type: "response", event, output });
       });
     },
+    open: function open(url) {
+      postMessage({ type: "open", url });
+    },
   },
   {
     set: (_target, key, _value) => {
